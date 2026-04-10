@@ -3,180 +3,529 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Labareda — Sexta 10/04/2026</title>
+<title>Labareda Ops</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --color-text-primary: #1a1a1a;
-    --color-text-secondary: #666;
-    --color-text-tertiary: #999;
-    --color-text-danger: #991f1f;
-    --color-text-warning: #854f0b;
-    --color-text-success: #3b6d11;
-    --color-text-info: #185fa5;
-    --color-background-primary: #ffffff;
-    --color-background-secondary: #f5f5f3;
-    --color-background-danger: #fcebeb;
-    --color-background-warning: #faeeda;
-    --color-background-success: #eaf3de;
-    --color-background-info: #e6f1fb;
-    --color-border-tertiary: rgba(0,0,0,0.12);
-    --color-border-secondary: rgba(0,0,0,0.25);
-    --color-border-success: #639922;
-    --border-radius-md: 8px;
-    --border-radius-lg: 12px;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --bg: #0f0f0f;
+    --bg2: #1a1a1a;
+    --bg3: #222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0f0f0;
+    --text2: #999;
+    --text3: #666;
+    --orange: #FF5C00;
+    --red: #E24B4A;
+    --amber: #EF9F27;
+    --green: #1D9E75;
+    --blue: #378ADD;
+    --radius: 10px;
+    --radius-sm: 6px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-sans); background: #f9f9f7; padding: 1.5rem; color: var(--color-text-primary); }
-  .w { max-width: 700px; margin: 0 auto; }
-  .top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 1.25rem; }
-  .ttl { font-size: 16px; font-weight: 500; }
-  .sub { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
-  .bgs { display: flex; gap: 6px; flex-wrap: wrap; }
-  .bg { font-size: 11px; padding: 3px 9px; border-radius: var(--border-radius-md); font-weight: 500; }
-  .bg-r { background: var(--color-background-danger); color: var(--color-text-danger); }
-  .bg-a { background: var(--color-background-warning); color: var(--color-text-warning); }
-  .bg-g { background: var(--color-background-success); color: var(--color-text-success); }
-  .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
-  .st { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; text-align: center; }
-  .sn { font-size: 20px; font-weight: 500; }
-  .sl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
-  .alert-r { background: var(--color-background-danger); border-radius: var(--border-radius-md); padding: 10px 13px; font-size: 13px; color: var(--color-text-danger); margin-bottom: 8px; font-weight: 500; }
-  .alert-a { background: var(--color-background-warning); border-radius: var(--border-radius-md); padding: 10px 13px; font-size: 13px; color: var(--color-text-warning); margin-bottom: 8px; font-weight: 500; }
-  .tl { margin-bottom: 1.5rem; }
-  .tli { display: flex; gap: 10px; align-items: stretch; margin-bottom: 3px; }
-  .tlt { font-size: 12px; color: var(--color-text-secondary); width: 50px; flex-shrink: 0; padding-top: 10px; text-align: right; }
-  .tll { display: flex; flex-direction: column; align-items: center; width: 16px; flex-shrink: 0; }
-  .tld { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 11px; }
-  .tlb { width: 1px; background: var(--color-border-tertiary); flex: 1; margin-top: 2px; }
-  .d-block { background: #888780; } .d-free { background: #1D9E75; } .d-hot { background: #E24B4A; }
-  .tlc { flex: 1; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 8px 12px; margin-bottom: 3px; }
-  .tlc.off { background: var(--color-background-secondary); }
-  .tlc.hot { border-left: 2px solid #E24B4A; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; }
-  .tln { font-size: 13px; font-weight: 500; }
-  .tls { font-size: 12px; color: var(--color-text-secondary); margin-top: 1px; }
-  .sec { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; margin: 1rem 0 8px; }
-  .tabs { display: flex; gap: 6px; margin-bottom: 1rem; }
-  .tab { font-size: 13px; padding: 6px 14px; border-radius: var(--border-radius-md); cursor: pointer; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); background: transparent; }
-  .tab.on { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
-  .pnl { display: none; } .pnl.on { display: block; }
-  .tc { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 11px 13px; margin-bottom: 7px; display: flex; gap: 10px; align-items: flex-start; cursor: pointer; transition: opacity .18s; }
-  .tc.done { opacity: .38; }
-  .tc.done .tn { text-decoration: line-through; }
-  .ck { width: 20px; height: 20px; border-radius: 50%; border: 0.5px solid var(--color-border-secondary); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: transparent; transition: all .15s; }
-  .ck.on { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
-  .pd { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-  .pd-r { background: #E24B4A; } .pd-a { background: #BA7517; } .pd-g { background: #1D9E75; }
-  .tb { flex: 1; }
-  .tn { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
-  .tm { font-size: 12px; color: var(--color-text-secondary); }
-  .th { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
-  .db { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; }
-  .dn { font-weight: 500; color: var(--color-text-success); }
-  .foot { margin-top: 1.25rem; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 1rem; }
-  button { font-size: 13px; padding: 8px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; cursor: pointer; }
-  button:hover { background: var(--color-background-secondary); }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', -apple-system, sans-serif; min-height: 100vh; }
+
+  /* HEADER */
+  .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 18px; font-weight: 700; color: var(--orange); letter-spacing: -0.5px; }
+  .header-date { font-size: 13px; color: var(--text2); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 4px; }
+
+  /* STATS */
+  .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 16px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+  .stat { text-align: center; }
+  .stat-n { font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-n.orange { color: var(--orange); }
+  .stat-n.green { color: var(--green); }
+  .stat-n.red { color: var(--red); }
+  .stat-l { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* ALERTS */
+  .alerts { padding: 12px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; }
+  .alert-red { background: rgba(226,75,74,0.15); color: #ff8080; border: 1px solid rgba(226,75,74,0.3); }
+  .alert-amber { background: rgba(239,159,39,0.12); color: #ffc066; border: 1px solid rgba(239,159,39,0.25); }
+  .alert-green { background: rgba(29,158,117,0.12); color: #5dd4a5; border: 1px solid rgba(29,158,117,0.25); }
+
+  /* TIMELINE */
+  .timeline-section { padding: 12px 20px; }
+  .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .tl { display: flex; flex-direction: column; gap: 4px; }
+  .tl-item { display: flex; gap: 10px; align-items: stretch; }
+  .tl-time { font-size: 11px; color: var(--text3); width: 44px; flex-shrink: 0; padding-top: 10px; text-align: right; }
+  .tl-line { display: flex; flex-direction: column; align-items: center; width: 16px; flex-shrink: 0; }
+  .tl-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 11px; }
+  .tl-bar { width: 1px; background: var(--border2); flex: 1; margin-top: 2px; }
+  .d-free { background: var(--green); }
+  .d-block { background: var(--text3); }
+  .d-hot { background: var(--red); }
+  .d-orange { background: var(--orange); }
+  .tl-card { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 3px; }
+  .tl-card.off { opacity: 0.5; }
+  .tl-card.hot { border-left: 2px solid var(--red); }
+  .tl-name { font-size: 13px; font-weight: 500; }
+  .tl-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+
+  /* TABS */
+  .tabs-wrap { padding: 12px 20px 0; }
+  .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tab { font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; color: var(--text2); border: 1px solid transparent; border-bottom: none; background: transparent; transition: all .15s; }
+  .tab.on { background: var(--bg2); color: var(--orange); border-color: var(--border); border-bottom: 1px solid var(--bg2); margin-bottom: -1px; }
+  .pnl { display: none; padding: 16px 20px; } .pnl.on { display: block; }
+
+  /* PRIORITY SECTION */
+  .priority-block { margin-bottom: 20px; }
+  .priority-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .priority-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .priority-label.alta { color: var(--red); }
+  .priority-label.media { color: var(--amber); }
+  .priority-label.baixa { color: var(--green); }
+  .priority-meta { font-size: 11px; color: var(--text3); }
+  .poms { display: flex; gap: 3px; margin-left: auto; }
+  .pom { width: 12px; height: 12px; border-radius: 2px; }
+  .pom.w { background: var(--red); opacity: 0.7; }
+  .pom.r { background: var(--blue); opacity: 0.5; }
+
+  /* TASK CARD */
+  .task-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; transition: all .18s; user-select: none; }
+  .task-card:hover { border-color: var(--border2); }
+  .task-card.done { opacity: 0.35; }
+  .task-card.done .task-title { text-decoration: line-through; }
+  .task-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; transition: all .15s; }
+  .task-check.on { background: var(--green); border-color: var(--green); color: #fff; }
+  .task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .dot-alta { background: var(--red); }
+  .dot-media { background: var(--amber); }
+  .dot-baixa { background: var(--green); }
+  .task-body { flex: 1; min-width: 0; }
+  .task-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; line-height: 1.4; }
+  .task-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .task-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .task-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+  .badge-client { background: rgba(255,92,0,0.15); color: #ff8c44; }
+  .badge-type { background: rgba(55,138,221,0.15); color: #70b3f0; }
+  .badge-time { background: rgba(255,255,255,0.06); color: var(--text3); }
+  .task-poms { display: flex; gap: 2px; margin-top: 6px; }
+
+  /* DONE COUNTER */
+  .done-bar { font-size: 13px; color: var(--text2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .done-count { font-weight: 700; color: var(--green); font-size: 15px; }
+  .progress-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
+
+  /* FOOTER */
+  .footer { padding: 20px; border-top: 1px solid var(--border); margin-top: 10px; }
+  .report-btn { width: 100%; padding: 12px; background: rgba(255,92,0,0.1); border: 1px solid rgba(255,92,0,0.3); border-radius: var(--radius); color: var(--orange); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .report-btn:hover { background: rgba(255,92,0,0.2); }
+
+  /* SETUP OVERLAY */
+  .setup-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .setup-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; max-width: 480px; width: 100%; }
+  .setup-title { font-size: 20px; font-weight: 700; color: var(--orange); margin-bottom: 8px; }
+  .setup-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+  .setup-field { margin-bottom: 14px; }
+  .setup-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
+  .setup-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text); font-size: 13px; outline: none; }
+  .setup-input:focus { border-color: var(--orange); }
+  .setup-btn { width: 100%; padding: 12px; background: var(--orange); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+  .setup-note { font-size: 11px; color: var(--text3); margin-top: 14px; line-height: 1.6; }
+
+  @media (max-width: 480px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .header { padding: 12px 16px; }
+    .pnl { padding: 12px 16px; }
+  }
 </style>
 </head>
 <body>
-<div class="w">
 
-<div class="top">
-  <div>
-    <div class="ttl">Labareda — Sexta 10/04/2026</div>
-    <div class="sub">Maringá GMT-3 · Compromisso 15h–17h · 3 janelas produtivas</div>
+<!-- SETUP OVERLAY (aparece na primeira vez) -->
+<div class="setup-overlay" id="setup-overlay">
+  <div class="setup-box">
+    <div class="setup-title">🔥 Labareda Ops</div>
+    <div class="setup-sub">Configure a conexão com o Supabase para ativar o painel com tempo real e persistência de dados.</div>
+    <div class="setup-field">
+      <label class="setup-label">Supabase URL</label>
+      <input class="setup-input" id="sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co" />
+    </div>
+    <div class="setup-field">
+      <label class="setup-label">Supabase Anon Key</label>
+      <input class="setup-input" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+    </div>
+    <button class="setup-btn" onclick="saveConfig()">Conectar e Entrar</button>
+    <div class="setup-note">
+      📌 Como obter: acesse <strong>supabase.com</strong> → seu projeto → Settings → API<br>
+      Copie a "Project URL" e a "anon public key".<br><br>
+      Suas credenciais ficam salvas no navegador. Você só configura uma vez.
+    </div>
   </div>
-  <div class="bgs">
-    <span class="bg bg-r">Cobranças vencem hoje</span>
-    <span class="bg bg-a">Compromisso 15h–17h</span>
-    <span class="bg bg-g">Entregar Aline</span>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">🔥 Labareda</div>
+  <div class="header-date" id="header-date">Carregando...</div>
+  <div class="header-right">
+    <span id="online-indicator" style="font-size:12px;color:var(--text2)"><span class="online-dot"></span>Online</span>
   </div>
 </div>
 
-<div class="stats">
-  <div class="st"><div class="sn">20</div><div class="sl">tarefas</div></div>
-  <div class="st"><div class="sn" id="s-ok">0</div><div class="sl">concluídas</div></div>
-  <div class="st"><div class="sn" id="s-ab">20</div><div class="sl">em aberto</div></div>
-  <div class="st"><div class="sn">3</div><div class="sl">urgências</div></div>
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-n orange" id="total-tasks">-</div><div class="stat-l">tarefas hoje</div></div>
+  <div class="stat"><div class="stat-n green" id="done-tasks">0</div><div class="stat-l">concluídas</div></div>
+  <div class="stat"><div class="stat-n" id="open-tasks">-</div><div class="stat-l">em aberto</div></div>
+  <div class="stat"><div class="stat-n red" id="late-tasks">0</div><div class="stat-l">atrasadas</div></div>
 </div>
 
-<div class="alert-r">Cobranças vencem HOJE — Ricardinho R$500 · Pluma R$500 · Thaís R$450 · Magnolia R$900</div>
-<div class="alert-a">Reel 002 Marcos publica hoje — confirmar se está agendado!</div>
+<!-- ALERTS -->
+<div class="alerts" id="alerts-container"></div>
 
-<div class="sec">Linha do tempo</div>
-<div class="tl">
-  <div class="tli"><div class="tlt">manhã</div><div class="tll"><div class="tld d-free"></div><div class="tlb"></div></div><div class="tlc"><div class="tln">Janela produtiva — ambos</div><div class="tls">até 15h · foco máximo em altas prioridades</div></div></div>
-  <div class="tli"><div class="tlt">15h</div><div class="tll"><div class="tld d-hot"></div><div class="tlb"></div></div><div class="tlc hot off"><div class="tln">Compromisso externo — ambos</div><div class="tls">15h às 17h · indisponível</div></div></div>
-  <div class="tli"><div class="tlt">17h</div><div class="tll"><div class="tld d-free"></div></div><div class="tlc"><div class="tln">Janela produtiva — noite</div><div class="tls">17h em diante · finalizar pendências do dia</div></div></div>
+<!-- TIMELINE -->
+<div class="timeline-section">
+  <div class="section-title">Linha do tempo</div>
+  <div class="tl" id="timeline-container"></div>
 </div>
 
-<div class="tabs">
-  <div class="tab on" onclick="sw('ed',this)">Edivaldo</div>
-  <div class="tab" onclick="sw('kt',this)">Kethly</div>
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('ed',this)">Edivaldo</div>
+    <div class="tab" onclick="switchTab('kt',this)">Kethly</div>
+  </div>
 </div>
 
-<div id="ed" class="pnl on">
-  <div class="db">Concluídas: <span class="dn" id="ed-n">0</span> de 11</div>
-
-  <div class="sec">Alta · fazer antes das 15h</div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Alterar última capa carrossel 003 Magnolia</div><div class="tm">Pedido da cliente · corrigir foto · subir Drive + Notion · repassar Kethly</div><div class="th">Alta · primeiro da fila</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Alterar posts 003 e 004 Marcos</div><div class="tm">Substituir palavras difíceis de ancoragem por termos simples · repassar Kethly após corrigir</div><div class="th">Alta · antes das 15h</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Criar 6 capas de destaques Marcos</div><div class="tm">Treino · Sobre mim · Online · Resultados · Família · Futebol · identidade Marcos, ícone temático em cada</div><div class="th">Alta · antes das 15h</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Criar 5 capas de destaques Magnolia</div><div class="tm">Resultado · Sobre mim · Método · Consulta · Agenda · identidade visual da reunião 08/04</div><div class="th">Alta · antes das 15h</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Post fixo 001 Marcos — "Você treina e não vê resultado?"</div><div class="tm">Tema: dor/identificação · banco de imagens fitness escuro · texto direto e impactante</div><div class="th">Alta</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Post fixo 002 Marcos — "Quem é Marcos Adriano e como posso te ajudar"</div><div class="tm">Tema: confiança/apresentação · imagem de autoridade do banco de imagens · tom profissional</div><div class="th">Alta</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Post fixo 003 Marcos — "Por que meus alunos conseguem resultado mesmo sem tempo"</div><div class="tm">Tema: solução/educação · imagem de resultado/transformação · destaque no benefício</div><div class="th">Alta</div></div></div>
-
-  <div class="sec">Média · após 17h</div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-a"></div><div class="ck">✓</div><div class="tb"><div class="tn">Post fixo 001 Magnolia — "Você tenta emagrecer mas nunca consegue manter?"</div><div class="tm">Tema: identificação · imagem leve alimentação saudável · identidade visual da reunião</div><div class="th">Média · após compromisso</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-a"></div><div class="ck">✓</div><div class="tb"><div class="tn">Post fixo 002 Magnolia — "Prazer, sou a Magnolia nutricionista..."</div><div class="tm">Tema: apresentação · imagem profissional/clínica · tom acolhedor e leve</div><div class="th">Média · após compromisso</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-a"></div><div class="ck">✓</div><div class="tb"><div class="tn">Post fixo 003 Magnolia — "Você não precisa de mais uma dieta..."</div><div class="tm">Tema: solução · imagem de leveza e bem-estar · resultado sustentável</div><div class="th">Média · após compromisso</div></div></div>
-  <div class="tc" onclick="tog(this,'ed')"><div class="pd pd-a"></div><div class="ck">✓</div><div class="tb"><div class="tn">Produzir e entregar serviço do mês — Aline</div><div class="tm">Contrato encerrado mas mês não foi entregue · honrar compromisso · confirmar com Kethly o que falta</div><div class="th">Média · após compromisso</div></div></div>
+<div id="pnl-ed" class="pnl on">
+  <div class="done-bar">
+    Concluídas: <span class="done-count" id="ed-done">0</span> de <span id="ed-total">0</span>
+    <div class="progress-bar"><div class="progress-fill" id="ed-progress" style="width:0%"></div></div>
+  </div>
+  <div id="ed-tasks"><div class="loading">Carregando tarefas...</div></div>
 </div>
 
-<div id="kt" class="pnl">
-  <div class="db">Concluídas: <span class="dn" id="kt-n">0</span> de 9</div>
-
-  <div class="sec">Alta · fazer antes das 15h</div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Verificar cobranças do dia 10 e fazer follow-up</div><div class="tm">Ricardinho R$500 · Pluma R$500 · Thaís R$450 · Magnolia R$900 · cobrar quem não pagou</div><div class="th">Alta · vence hoje — fazer cedo</div></div></div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Pagar Danilo — R$35</div><div class="tm">1 vídeo Marcos · confirmar no grupo com ele antes de processar</div><div class="th">Alta · antes das 15h</div></div></div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Pagar Micheline — R$270</div><div class="tm">6 vídeos confirmados · R$45/vídeo · processar pagamento hoje</div><div class="th">Alta · antes das 15h</div></div></div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Digitalizar e enviar contrato Ricardinho</div><div class="tm">Já assinado com testemunhas · fotografar/digitalizar · enviar no grupo da Labareda</div><div class="th">Alta · antes das 15h</div></div></div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">William Novaes assinar contrato Marcos</div><div class="tm">Levar contrato até ele · digitalizar · enviar no grupo da Labareda</div><div class="th">Alta · antes das 15h</div></div></div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-r"></div><div class="ck">✓</div><div class="tb"><div class="tn">Obter 2 testemunhas — contrato Thaís</div><div class="tm">Sem vínculo familiar · digitalizar após assinar · enviar no grupo</div><div class="th">Alta · se não feito ontem</div></div></div>
-
-  <div class="sec">Média · após 17h</div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-a"></div><div class="ck">✓</div><div class="tb"><div class="tn">Disparar alterações Magnolia e Marcos para aprovação</div><div class="tm">Receber de Edivaldo · enviar para cada cliente com mensagem profissional · aguardar OK</div><div class="th">Média · assim que Edivaldo finalizar</div></div></div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-a"></div><div class="ck">✓</div><div class="tb"><div class="tn">Confirmar e acompanhar entrega Aline</div><div class="tm">Comunicar que o material será entregue · acompanhar produção com Edivaldo · finalizar</div><div class="th">Média · após compromisso</div></div></div>
-
-  <div class="sec">Baixa · ao final do dia</div>
-  <div class="tc" onclick="tog(this,'kt')"><div class="pd pd-g"></div><div class="ck">✓</div><div class="tb"><div class="tn">Relatório do dia no grupo</div><div class="tm">Pagamentos, cobranças, contratos, destaques, posts fixos e o que fica para semana que vem</div><div class="th">Baixa · ao encerrar o dia</div></div></div>
+<div id="pnl-kt" class="pnl">
+  <div class="done-bar">
+    Concluídas: <span class="done-count" id="kt-done">0</span> de <span id="kt-total">0</span>
+    <div class="progress-bar"><div class="progress-fill" id="kt-progress" style="width:0%"></div></div>
+  </div>
+  <div id="kt-tasks"><div class="loading">Carregando tarefas...</div></div>
 </div>
 
-<div class="foot">
-  <button onclick="alert('Envie o relatório do dia no grupo da Labareda!')">Enviar relatório do dia</button>
-</div>
-
+<div class="footer">
+  <button class="report-btn" onclick="openReport()">📋 Enviar relatório do dia</button>
 </div>
 
 <script>
-const c={ed:0,kt:0},tot={ed:11,kt:9};
-function tog(card,who){
-  const ck=card.querySelector('.ck');
-  const on=ck.classList.toggle('on');
-  card.classList.toggle('done',on);
-  c[who]+=on?1:-1;
-  document.getElementById(who+'-n').textContent=c[who];
-  const done=c.ed+c.kt;
-  document.getElementById('s-ok').textContent=done;
-  document.getElementById('s-ab').textContent=(tot.ed+tot.kt)-done;
+// ─── CONFIG ───────────────────────────────────────────────
+let supabase = null;
+let allTasks = [];
+let taskStates = {};
+const TODAY = new Date().toISOString().split('T')[0];
+
+function saveConfig() {
+  const url = document.getElementById('sb-url').value.trim();
+  const key = document.getElementById('sb-key').value.trim();
+  if (!url || !key) { alert('Preencha os dois campos!'); return; }
+  localStorage.setItem('sb_url', url);
+  localStorage.setItem('sb_key', key);
+  initSupabase(url, key);
+  document.getElementById('setup-overlay').style.display = 'none';
 }
-function sw(id,el){
-  document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
+
+function initSupabase(url, key) {
+  supabase = window.supabase.createClient(url, key);
+  loadTasks();
+  subscribeRealtime();
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  setHeaderDate();
+  const url = localStorage.getItem('sb_url');
+  const key = localStorage.getItem('sb_key');
+  if (url && key) {
+    document.getElementById('setup-overlay').style.display = 'none';
+    initSupabase(url, key);
+  }
+});
+
+function setHeaderDate() {
+  const now = new Date();
+  const days = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  document.getElementById('header-date').textContent =
+    `${days[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]} de ${now.getFullYear()}`;
+}
+
+// ─── LOAD TASKS ────────────────────────────────────────────
+async function loadTasks() {
+  const { data: tasks, error } = await supabase
+    .from('tarefas')
+    .select('*')
+    .eq('data', TODAY)
+    .order('prioridade_ordem', { ascending: true })
+    .order('ordem', { ascending: true });
+
+  if (error) { console.error(error); return; }
+
+  allTasks = tasks || [];
+
+  const { data: states } = await supabase
+    .from('task_states')
+    .select('*')
+    .eq('data', TODAY);
+
+  taskStates = {};
+  (states || []).forEach(s => { taskStates[s.task_id] = s.done; });
+
+  renderAll();
+}
+
+// ─── RENDER ────────────────────────────────────────────────
+function renderAll() {
+  renderTimeline();
+  renderAlerts();
+  renderTasks('ed');
+  renderTasks('kt');
+  updateStats();
+}
+
+function renderAlerts() {
+  const { data: alerts } = window.LABAREDA_CONFIG?.alerts || [];
+  const container = document.getElementById('alerts-container');
+  container.innerHTML = (window.LABAREDA_ALERTS || []).map(a =>
+    `<div class="alert alert-${a.type}">${a.text}</div>`
+  ).join('');
+}
+
+function renderTimeline() {
+  const container = document.getElementById('timeline-container');
+  const tl = window.LABAREDA_TIMELINE || [];
+  container.innerHTML = tl.map((item, i) => `
+    <div class="tl-item">
+      <div class="tl-time">${item.time}</div>
+      <div class="tl-line">
+        <div class="tl-dot ${item.dot}"></div>
+        ${i < tl.length - 1 ? '<div class="tl-bar"></div>' : ''}
+      </div>
+      <div class="tl-card ${item.off ? 'off' : ''} ${item.hot ? 'hot' : ''}">
+        <div class="tl-name">${item.name}</div>
+        <div class="tl-sub">${item.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTasks(who) {
+  const tasks = allTasks.filter(t => t.responsavel === who);
+  const container = document.getElementById(`${who}-tasks`);
+
+  if (tasks.length === 0) {
+    container.innerHTML = '<div class="loading">Nenhuma tarefa para hoje.</div>';
+    return;
+  }
+
+  const priorities = ['alta','media','baixa'];
+  const labels = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+  const hours = { alta: '3h · 1h cada', media: '2h total', baixa: '1h total' };
+  const poms = { alta: 4, media: 3, baixa: 2 };
+
+  let html = '';
+  priorities.forEach(p => {
+    const group = tasks.filter(t => t.prioridade === p);
+    if (!group.length) return;
+
+    const pomsHtml = Array(poms[p]).fill(0).map((_,i) =>
+      `<div class="pom ${i % 2 === 0 ? 'w' : 'r'}"></div>`
+    ).join('');
+
+    html += `
+      <div class="priority-block">
+        <div class="priority-header">
+          <span class="priority-label ${p}">${labels[p]}</span>
+          <span class="priority-meta">${hours[p]}</span>
+          <div class="poms">${pomsHtml}</div>
+        </div>
+        ${group.map(t => renderTask(t)).join('')}
+      </div>`;
+  });
+
+  container.innerHTML = html;
+  updatePersonCount(who);
+}
+
+function renderTask(t) {
+  const done = taskStates[t.id] ? 'done' : '';
+  const checkOn = taskStates[t.id] ? 'on' : '';
+  const dotClass = `dot-${t.prioridade}`;
+  const poms = { alta: [1,1,1,1], media: [1,0,1,0,1,0], baixa: [1,0] };
+  const pomsArr = poms[t.prioridade] || [1,0];
+  const pomsHtml = pomsArr.map(p => `<div class="pom ${p?'w':'r'}"></div>`).join('');
+
+  return `
+    <div class="task-card ${done}" onclick="toggleTask('${t.id}','${t.responsavel}')" id="task-${t.id}">
+      <div class="task-check ${checkOn}">✓</div>
+      <div class="task-dot ${dotClass}"></div>
+      <div class="task-body">
+        <div class="task-title">${t.titulo}</div>
+        <div class="task-desc">${t.descricao || ''}</div>
+        <div class="task-meta">
+          <span class="task-badge badge-client">${t.cliente}</span>
+          <span class="task-badge badge-type">${t.tipo}</span>
+          ${t.horario ? `<span class="task-badge badge-time">${t.horario}</span>` : ''}
+        </div>
+        <div class="task-poms">${pomsHtml}</div>
+      </div>
+    </div>`;
+}
+
+// ─── TOGGLE ────────────────────────────────────────────────
+async function toggleTask(taskId, who) {
+  const current = taskStates[taskId] || false;
+  const newState = !current;
+  taskStates[taskId] = newState;
+
+  const card = document.getElementById(`task-${taskId}`);
+  const check = card.querySelector('.task-check');
+  card.classList.toggle('done', newState);
+  check.classList.toggle('on', newState);
+
+  updatePersonCount(who);
+  updateStats();
+
+  await supabase.from('task_states').upsert({
+    task_id: taskId,
+    data: TODAY,
+    done: newState
+  }, { onConflict: 'task_id,data' });
+}
+
+// ─── REALTIME ──────────────────────────────────────────────
+function subscribeRealtime() {
+  supabase.channel('task_states_changes')
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'task_states'
+    }, payload => {
+      const { task_id, done, data } = payload.new || {};
+      if (data !== TODAY) return;
+      if (taskStates[task_id] === done) return;
+      taskStates[task_id] = done;
+      const card = document.getElementById(`task-${task_id}`);
+      if (card) {
+        card.classList.toggle('done', done);
+        card.querySelector('.task-check').classList.toggle('on', done);
+      }
+      const task = allTasks.find(t => t.id === task_id);
+      if (task) updatePersonCount(task.responsavel);
+      updateStats();
+    }).subscribe();
+}
+
+// ─── STATS ─────────────────────────────────────────────────
+function updateStats() {
+  const total = allTasks.length;
+  const done = allTasks.filter(t => taskStates[t.id]).length;
+  const open = total - done;
+  document.getElementById('total-tasks').textContent = total;
+  document.getElementById('done-tasks').textContent = done;
+  document.getElementById('open-tasks').textContent = open;
+}
+
+function updatePersonCount(who) {
+  const tasks = allTasks.filter(t => t.responsavel === who);
+  const done = tasks.filter(t => taskStates[t.id]).length;
+  const total = tasks.length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById(`${who}-done`).textContent = done;
+  document.getElementById(`${who}-total`).textContent = total;
+  document.getElementById(`${who}-progress`).style.width = pct + '%';
+}
+
+// ─── TABS ──────────────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.pnl').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById(`pnl-${id}`).classList.add('on');
   el.classList.add('on');
 }
+
+// ─── REPORT ────────────────────────────────────────────────
+function openReport() {
+  const done = allTasks.filter(t => taskStates[t.id]).map(t => `✅ ${t.titulo} (${t.cliente})`).join('\n');
+  const open = allTasks.filter(t => !taskStates[t.id]).map(t => `⏳ ${t.titulo} (${t.cliente})`).join('\n');
+  const text = `📋 RELATÓRIO DO DIA ${TODAY}\n\n✅ CONCLUÍDO:\n${done || 'Nenhuma'}\n\n⏳ PENDENTE:\n${open || 'Tudo concluído!'}`;
+  navigator.clipboard?.writeText(text).then(() => alert('Relatório copiado! Cole no grupo da Labareda.'));
+}
+
+// ─── CONFIG DO DIA (EDITAR AQUI TODO DIA) ─────────────────
+window.LABAREDA_ALERTS = [
+  { type: 'red', text: 'Cobranças vencem HOJE — Ricardinho R$500 · Pluma R$500 · Thaís R$450 · Magnolia R$900' },
+  { type: 'amber', text: 'Pluma ainda não pagou — cobrar com prazo claro' },
+  { type: 'green', text: 'William Novaes JÁ assinou contrato Marcos ✅' }
+];
+
+window.LABAREDA_TIMELINE = [
+  { time: '08h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Kethly ainda na musculação até 09h', off: false, hot: false },
+  { time: '09h', dot: 'd-free', name: 'Janela produtiva — ambos', sub: 'Até 12h · foco máximo', off: false, hot: false },
+  { time: '12h', dot: 'd-block', name: 'Almoço', sub: 'Até 13h · indisponível', off: true, hot: false },
+  { time: '13h', dot: 'd-free', name: 'Janela produtiva — ambos', sub: 'Até 15h', off: false, hot: false },
+  { time: '15h', dot: 'd-hot', name: 'Compromisso externo', sub: 'Até 17h · indisponível', off: true, hot: true },
+  { time: '17h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Kethly encerra às 18h', off: false, hot: false },
+  { time: '18h', dot: 'd-orange', name: 'Descanso — Edivaldo', sub: 'Até 19h · Kethly encerra o dia', off: true, hot: false },
+  { time: '19h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Até 22h', off: false, hot: false }
+];
 </script>
+
+<!-- ═══════════════════════════════════════════════════════
+     INSTRUÇÕES DE USO
+═══════════════════════════════════════════════════════════
+
+CONFIGURAÇÃO ÚNICA (só na primeira vez):
+1. Acesse supabase.com e crie um projeto gratuito
+2. Vá em Settings → API
+3. Copie a Project URL e a anon key
+4. Cole no formulário que aparece ao abrir o site
+
+CRIAR AS TABELAS NO SUPABASE (SQL Editor):
+
+-- Tabela de tarefas
+CREATE TABLE tarefas (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  data date NOT NULL,
+  titulo text NOT NULL,
+  descricao text,
+  prioridade text CHECK (prioridade IN ('alta','media','baixa')),
+  prioridade_ordem int DEFAULT 1,
+  responsavel text CHECK (responsavel IN ('ed','kt')),
+  cliente text,
+  tipo text,
+  horario text,
+  ordem int DEFAULT 0
+);
+
+-- Tabela de estados dos checks
+CREATE TABLE task_states (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  task_id uuid REFERENCES tarefas(id) ON DELETE CASCADE,
+  data date NOT NULL,
+  done boolean DEFAULT false,
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(task_id, data)
+);
+
+-- Habilitar realtime
+ALTER TABLE task_states REPLICA IDENTITY FULL;
+
+INSERIR TAREFAS DO DIA (exemplo para 10/04):
+Copie e cole no SQL Editor do Supabase após criar as tabelas.
+O Claude vai gerar o SQL de inserção todo dia junto com o plano.
+
+══════════════════════════════════════════════════════════ -->
+
 </body>
 </html>
