@@ -4,52 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Labareda Ops</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root {
-    --bg: #0f0f0f;
-    --bg2: #1a1a1a;
-    --bg3: #222;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.15);
-    --text: #f0f0f0;
-    --text2: #999;
-    --text3: #666;
-    --orange: #FF5C00;
-    --red: #E24B4A;
-    --amber: #EF9F27;
-    --green: #1D9E75;
-    --blue: #378ADD;
-    --radius: 10px;
-    --radius-sm: 6px;
+    --bg: #0f0f0f; --bg2: #1a1a1a; --bg3: #222;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --text: #f0f0f0; --text2: #999; --text3: #666;
+    --orange: #FF5C00; --red: #E24B4A; --amber: #EF9F27;
+    --green: #1D9E75; --blue: #378ADD;
+    --radius: 10px; --radius-sm: 6px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', -apple-system, sans-serif; min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
 
-  /* HEADER */
   .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-  .logo { font-size: 18px; font-weight: 700; color: var(--orange); letter-spacing: -0.5px; }
+  .logo { font-size: 18px; font-weight: 700; color: var(--orange); }
   .header-date { font-size: 13px; color: var(--text2); }
-  .header-right { display: flex; align-items: center; gap: 12px; }
   .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 4px; }
 
-  /* STATS */
   .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 16px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); }
   .stat { text-align: center; }
-  .stat-n { font-size: 22px; font-weight: 700; color: var(--text); }
-  .stat-n.orange { color: var(--orange); }
-  .stat-n.green { color: var(--green); }
-  .stat-n.red { color: var(--red); }
+  .stat-n { font-size: 22px; font-weight: 700; }
+  .stat-n.orange { color: var(--orange); } .stat-n.green { color: var(--green); } .stat-n.red { color: var(--red); }
   .stat-l { font-size: 11px; color: var(--text2); margin-top: 2px; }
 
-  /* ALERTS */
   .alerts { padding: 12px 20px; display: flex; flex-direction: column; gap: 8px; }
   .alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; }
   .alert-red { background: rgba(226,75,74,0.15); color: #ff8080; border: 1px solid rgba(226,75,74,0.3); }
   .alert-amber { background: rgba(239,159,39,0.12); color: #ffc066; border: 1px solid rgba(239,159,39,0.25); }
   .alert-green { background: rgba(29,158,117,0.12); color: #5dd4a5; border: 1px solid rgba(29,158,117,0.25); }
 
-  /* TIMELINE */
   .timeline-section { padding: 12px 20px; }
   .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
   .tl { display: flex; flex-direction: column; gap: 4px; }
@@ -58,37 +42,26 @@
   .tl-line { display: flex; flex-direction: column; align-items: center; width: 16px; flex-shrink: 0; }
   .tl-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 11px; }
   .tl-bar { width: 1px; background: var(--border2); flex: 1; margin-top: 2px; }
-  .d-free { background: var(--green); }
-  .d-block { background: var(--text3); }
-  .d-hot { background: var(--red); }
-  .d-orange { background: var(--orange); }
+  .d-free { background: var(--green); } .d-block { background: var(--text3); } .d-hot { background: var(--red); } .d-orange { background: var(--orange); }
   .tl-card { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 3px; }
-  .tl-card.off { opacity: 0.5; }
-  .tl-card.hot { border-left: 2px solid var(--red); }
-  .tl-name { font-size: 13px; font-weight: 500; }
-  .tl-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .tl-card.off { opacity: 0.5; } .tl-card.hot { border-left: 2px solid var(--red); }
+  .tl-name { font-size: 13px; font-weight: 500; } .tl-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
 
-  /* TABS */
   .tabs-wrap { padding: 12px 20px 0; }
-  .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); }
   .tab { font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; color: var(--text2); border: 1px solid transparent; border-bottom: none; background: transparent; transition: all .15s; }
   .tab.on { background: var(--bg2); color: var(--orange); border-color: var(--border); border-bottom: 1px solid var(--bg2); margin-bottom: -1px; }
   .pnl { display: none; padding: 16px 20px; } .pnl.on { display: block; }
 
-  /* PRIORITY SECTION */
   .priority-block { margin-bottom: 20px; }
   .priority-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .priority-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-  .priority-label.alta { color: var(--red); }
-  .priority-label.media { color: var(--amber); }
-  .priority-label.baixa { color: var(--green); }
+  .priority-label.alta { color: var(--red); } .priority-label.media { color: var(--amber); } .priority-label.baixa { color: var(--green); }
   .priority-meta { font-size: 11px; color: var(--text3); }
   .poms { display: flex; gap: 3px; margin-left: auto; }
   .pom { width: 12px; height: 12px; border-radius: 2px; }
-  .pom.w { background: var(--red); opacity: 0.7; }
-  .pom.r { background: var(--blue); opacity: 0.5; }
+  .pom.w { background: var(--red); opacity: 0.7; } .pom.r { background: var(--blue); opacity: 0.5; }
 
-  /* TASK CARD */
   .task-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; transition: all .18s; user-select: none; }
   .task-card:hover { border-color: var(--border2); }
   .task-card.done { opacity: 0.35; }
@@ -96,34 +69,27 @@
   .task-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; transition: all .15s; }
   .task-check.on { background: var(--green); border-color: var(--green); color: #fff; }
   .task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-  .dot-alta { background: var(--red); }
-  .dot-media { background: var(--amber); }
-  .dot-baixa { background: var(--green); }
+  .dot-alta { background: var(--red); } .dot-media { background: var(--amber); } .dot-baixa { background: var(--green); }
   .task-body { flex: 1; min-width: 0; }
   .task-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; line-height: 1.4; }
   .task-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
-  .task-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .task-meta { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
   .task-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
   .badge-client { background: rgba(255,92,0,0.15); color: #ff8c44; }
   .badge-type { background: rgba(55,138,221,0.15); color: #70b3f0; }
   .badge-time { background: rgba(255,255,255,0.06); color: var(--text3); }
   .task-poms { display: flex; gap: 2px; margin-top: 6px; }
 
-  /* DONE COUNTER */
   .done-bar { font-size: 13px; color: var(--text2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
   .done-count { font-weight: 700; color: var(--green); font-size: 15px; }
   .progress-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
 
-  /* LOADING */
   .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
-
-  /* FOOTER */
   .footer { padding: 20px; border-top: 1px solid var(--border); margin-top: 10px; }
   .report-btn { width: 100%; padding: 12px; background: rgba(255,92,0,0.1); border: 1px solid rgba(255,92,0,0.3); border-radius: var(--radius); color: var(--orange); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s; }
   .report-btn:hover { background: rgba(255,92,0,0.2); }
 
-  /* SETUP OVERLAY */
   .setup-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .setup-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; max-width: 480px; width: 100%; }
   .setup-title { font-size: 20px; font-weight: 700; color: var(--orange); margin-bottom: 8px; }
@@ -133,18 +99,18 @@
   .setup-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text); font-size: 13px; outline: none; }
   .setup-input:focus { border-color: var(--orange); }
   .setup-btn { width: 100%; padding: 12px; background: var(--orange); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+  .setup-btn:hover { background: #e05200; }
   .setup-note { font-size: 11px; color: var(--text3); margin-top: 14px; line-height: 1.6; }
+  .error-msg { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
 
   @media (max-width: 480px) {
     .stats-bar { grid-template-columns: repeat(2, 1fr); }
-    .header { padding: 12px 16px; }
     .pnl { padding: 12px 16px; }
   }
 </style>
 </head>
 <body>
 
-<!-- SETUP OVERLAY (aparece na primeira vez) -->
 <div class="setup-overlay" id="setup-overlay">
   <div class="setup-box">
     <div class="setup-title">🔥 Labareda Ops</div>
@@ -154,45 +120,33 @@
       <input class="setup-input" id="sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co" />
     </div>
     <div class="setup-field">
-      <label class="setup-label">Supabase Anon Key</label>
+      <label class="setup-label">Supabase Anon Key (Legacy)</label>
       <input class="setup-input" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
     </div>
-    <button class="setup-btn" onclick="saveConfig()">Conectar e Entrar</button>
+    <div class="error-msg" id="error-msg">❌ Erro ao conectar. Verifique a URL e a chave.</div>
+    <button class="setup-btn" id="connect-btn" onclick="saveConfig()">Conectar e Entrar</button>
     <div class="setup-note">
-      📌 Como obter: acesse <strong>supabase.com</strong> → seu projeto → Settings → API<br>
-      Copie a "Project URL" e a "anon public key".<br><br>
-      Suas credenciais ficam salvas no navegador. Você só configura uma vez.
+      📌 Settings → API → Legacy anon, service_role API keys → copie a chave <strong>anon public</strong> (começa com eyJ...)
     </div>
   </div>
 </div>
 
-<!-- HEADER -->
 <div class="header">
   <div class="logo">🔥 Labareda</div>
-  <div class="header-date" id="header-date">Carregando...</div>
-  <div class="header-right">
-    <span id="online-indicator" style="font-size:12px;color:var(--text2)"><span class="online-dot"></span>Online</span>
-  </div>
+  <div class="header-date" id="header-date"></div>
+  <div style="font-size:12px;color:var(--text2)"><span class="online-dot"></span>Online</div>
 </div>
 
-<!-- STATS -->
 <div class="stats-bar">
   <div class="stat"><div class="stat-n orange" id="total-tasks">-</div><div class="stat-l">tarefas hoje</div></div>
-  <div class="stat"><div class="stat-n green" id="done-tasks">0</div><div class="stat-l">concluídas</div></div>
+  <div class="st"><div class="stat-n green" id="done-tasks">0</div><div class="stat-l">concluídas</div></div>
   <div class="stat"><div class="stat-n" id="open-tasks">-</div><div class="stat-l">em aberto</div></div>
   <div class="stat"><div class="stat-n red" id="late-tasks">0</div><div class="stat-l">atrasadas</div></div>
 </div>
 
-<!-- ALERTS -->
 <div class="alerts" id="alerts-container"></div>
+<div class="timeline-section"><div class="section-title">Linha do tempo</div><div class="tl" id="timeline-container"></div></div>
 
-<!-- TIMELINE -->
-<div class="timeline-section">
-  <div class="section-title">Linha do tempo</div>
-  <div class="tl" id="timeline-container"></div>
-</div>
-
-<!-- TABS -->
 <div class="tabs-wrap">
   <div class="tabs">
     <div class="tab on" onclick="switchTab('ed',this)">Edivaldo</div>
@@ -201,18 +155,12 @@
 </div>
 
 <div id="pnl-ed" class="pnl on">
-  <div class="done-bar">
-    Concluídas: <span class="done-count" id="ed-done">0</span> de <span id="ed-total">0</span>
-    <div class="progress-bar"><div class="progress-fill" id="ed-progress" style="width:0%"></div></div>
-  </div>
+  <div class="done-bar">Concluídas: <span class="done-count" id="ed-done">0</span> de <span id="ed-total">0</span><div class="progress-bar"><div class="progress-fill" id="ed-progress" style="width:0%"></div></div></div>
   <div id="ed-tasks"><div class="loading">Carregando tarefas...</div></div>
 </div>
 
 <div id="pnl-kt" class="pnl">
-  <div class="done-bar">
-    Concluídas: <span class="done-count" id="kt-done">0</span> de <span id="kt-total">0</span>
-    <div class="progress-bar"><div class="progress-fill" id="kt-progress" style="width:0%"></div></div>
-  </div>
+  <div class="done-bar">Concluídas: <span class="done-count" id="kt-done">0</span> de <span id="kt-total">0</span><div class="progress-bar"><div class="progress-fill" id="kt-progress" style="width:0%"></div></div></div>
   <div id="kt-tasks"><div class="loading">Carregando tarefas...</div></div>
 </div>
 
@@ -221,36 +169,61 @@
 </div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────
-let supabase = null;
+let supabaseClient = null;
 let allTasks = [];
 let taskStates = {};
 const TODAY = new Date().toISOString().split('T')[0];
 
-function saveConfig() {
+// ── SETUP ──────────────────────────────────────────────────
+async function saveConfig() {
   const url = document.getElementById('sb-url').value.trim();
   const key = document.getElementById('sb-key').value.trim();
-  if (!url || !key) { alert('Preencha os dois campos!'); return; }
-  localStorage.setItem('sb_url', url);
-  localStorage.setItem('sb_key', key);
-  initSupabase(url, key);
-  document.getElementById('setup-overlay').style.display = 'none';
+  const btn = document.getElementById('connect-btn');
+  const err = document.getElementById('error-msg');
+
+  if (!url || !key) { err.textContent = '❌ Preencha os dois campos!'; err.style.display='block'; return; }
+
+  btn.textContent = 'Conectando...';
+  btn.disabled = true;
+  err.style.display = 'none';
+
+  try {
+    const client = window.supabase.createClient(url, key);
+    // Testa a conexão
+    const { error } = await client.from('tarefas').select('id').limit(1);
+    if (error) throw error;
+
+    localStorage.setItem('sb_url', url);
+    localStorage.setItem('sb_key', key);
+    supabaseClient = client;
+    document.getElementById('setup-overlay').style.display = 'none';
+    loadTasks();
+    subscribeRealtime();
+  } catch(e) {
+    err.textContent = '❌ Erro: ' + (e.message || 'Verifique a URL e a chave.');
+    err.style.display = 'block';
+    btn.textContent = 'Conectar e Entrar';
+    btn.disabled = false;
+  }
 }
 
-function initSupabase(url, key) {
-  supabase = window.supabase.createClient(url, key);
-  loadTasks();
-  subscribeRealtime();
-}
-
-// ─── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   setHeaderDate();
+  renderAlerts();
+  renderTimeline();
   const url = localStorage.getItem('sb_url');
   const key = localStorage.getItem('sb_key');
   if (url && key) {
+    document.getElementById('sb-url').value = url;
+    document.getElementById('sb-key').value = key;
     document.getElementById('setup-overlay').style.display = 'none';
-    initSupabase(url, key);
+    try {
+      supabaseClient = window.supabase.createClient(url, key);
+      loadTasks();
+      subscribeRealtime();
+    } catch(e) {
+      document.getElementById('setup-overlay').style.display = 'flex';
+    }
   }
 });
 
@@ -258,195 +231,135 @@ function setHeaderDate() {
   const now = new Date();
   const days = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  document.getElementById('header-date').textContent =
-    `${days[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]} de ${now.getFullYear()}`;
+  document.getElementById('header-date').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
 }
 
-// ─── LOAD TASKS ────────────────────────────────────────────
+// ── LOAD ───────────────────────────────────────────────────
 async function loadTasks() {
-  const { data: tasks, error } = await supabase
-    .from('tarefas')
-    .select('*')
-    .eq('data', TODAY)
-    .order('prioridade_ordem', { ascending: true })
-    .order('ordem', { ascending: true });
-
+  const { data: tasks, error } = await supabaseClient.from('tarefas').select('*').eq('data', TODAY).order('prioridade_ordem').order('ordem');
   if (error) { console.error(error); return; }
-
   allTasks = tasks || [];
 
-  const { data: states } = await supabase
-    .from('task_states')
-    .select('*')
-    .eq('data', TODAY);
-
+  const { data: states } = await supabaseClient.from('task_states').select('*').eq('data', TODAY);
   taskStates = {};
   (states || []).forEach(s => { taskStates[s.task_id] = s.done; });
 
-  renderAll();
-}
-
-// ─── RENDER ────────────────────────────────────────────────
-function renderAll() {
-  renderTimeline();
-  renderAlerts();
   renderTasks('ed');
   renderTasks('kt');
   updateStats();
 }
 
+// ── RENDER ─────────────────────────────────────────────────
 function renderAlerts() {
-  const { data: alerts } = window.LABAREDA_CONFIG?.alerts || [];
-  const container = document.getElementById('alerts-container');
-  container.innerHTML = (window.LABAREDA_ALERTS || []).map(a =>
-    `<div class="alert alert-${a.type}">${a.text}</div>`
-  ).join('');
+  document.getElementById('alerts-container').innerHTML = (window.LABAREDA_ALERTS || []).map(a =>
+    `<div class="alert alert-${a.type}">${a.text}</div>`).join('');
 }
 
 function renderTimeline() {
-  const container = document.getElementById('timeline-container');
   const tl = window.LABAREDA_TIMELINE || [];
-  container.innerHTML = tl.map((item, i) => `
+  document.getElementById('timeline-container').innerHTML = tl.map((item, i) => `
     <div class="tl-item">
       <div class="tl-time">${item.time}</div>
-      <div class="tl-line">
-        <div class="tl-dot ${item.dot}"></div>
-        ${i < tl.length - 1 ? '<div class="tl-bar"></div>' : ''}
+      <div class="tl-line"><div class="tl-dot ${item.dot}"></div>${i < tl.length-1 ? '<div class="tl-bar"></div>' : ''}</div>
+      <div class="tl-card ${item.off?'off':''} ${item.hot?'hot':''}">
+        <div class="tl-name">${item.name}</div><div class="tl-sub">${item.sub}</div>
       </div>
-      <div class="tl-card ${item.off ? 'off' : ''} ${item.hot ? 'hot' : ''}">
-        <div class="tl-name">${item.name}</div>
-        <div class="tl-sub">${item.sub}</div>
-      </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 function renderTasks(who) {
   const tasks = allTasks.filter(t => t.responsavel === who);
   const container = document.getElementById(`${who}-tasks`);
-
-  if (tasks.length === 0) {
-    container.innerHTML = '<div class="loading">Nenhuma tarefa para hoje.</div>';
-    return;
-  }
+  if (!tasks.length) { container.innerHTML = '<div class="loading">Nenhuma tarefa para hoje.</div>'; return; }
 
   const priorities = ['alta','media','baixa'];
-  const labels = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
-  const hours = { alta: '3h · 1h cada', media: '2h total', baixa: '1h total' };
-  const poms = { alta: 4, media: 3, baixa: 2 };
+  const labels = { alta:'Alta', media:'Média', baixa:'Baixa' };
+  const hours = { alta:'3h · 1h cada', media:'2h total', baixa:'1h total' };
+  const pomCount = { alta:4, media:3, baixa:2 };
 
   let html = '';
   priorities.forEach(p => {
     const group = tasks.filter(t => t.prioridade === p);
     if (!group.length) return;
-
-    const pomsHtml = Array(poms[p]).fill(0).map((_,i) =>
-      `<div class="pom ${i % 2 === 0 ? 'w' : 'r'}"></div>`
-    ).join('');
-
-    html += `
-      <div class="priority-block">
-        <div class="priority-header">
-          <span class="priority-label ${p}">${labels[p]}</span>
-          <span class="priority-meta">${hours[p]}</span>
-          <div class="poms">${pomsHtml}</div>
-        </div>
-        ${group.map(t => renderTask(t)).join('')}
-      </div>`;
+    const poms = Array(pomCount[p]).fill(0).map((_,i) => `<div class="pom ${i%2===0?'w':'r'}"></div>`).join('');
+    html += `<div class="priority-block">
+      <div class="priority-header">
+        <span class="priority-label ${p}">${labels[p]}</span>
+        <span class="priority-meta">${hours[p]}</span>
+        <div class="poms">${poms}</div>
+      </div>
+      ${group.map(t => renderTask(t)).join('')}
+    </div>`;
   });
-
   container.innerHTML = html;
   updatePersonCount(who);
 }
 
 function renderTask(t) {
-  const done = taskStates[t.id] ? 'done' : '';
-  const checkOn = taskStates[t.id] ? 'on' : '';
-  const dotClass = `dot-${t.prioridade}`;
-  const poms = { alta: [1,1,1,1], media: [1,0,1,0,1,0], baixa: [1,0] };
-  const pomsArr = poms[t.prioridade] || [1,0];
-  const pomsHtml = pomsArr.map(p => `<div class="pom ${p?'w':'r'}"></div>`).join('');
-
-  return `
-    <div class="task-card ${done}" onclick="toggleTask('${t.id}','${t.responsavel}')" id="task-${t.id}">
-      <div class="task-check ${checkOn}">✓</div>
-      <div class="task-dot ${dotClass}"></div>
-      <div class="task-body">
-        <div class="task-title">${t.titulo}</div>
-        <div class="task-desc">${t.descricao || ''}</div>
-        <div class="task-meta">
-          <span class="task-badge badge-client">${t.cliente}</span>
-          <span class="task-badge badge-type">${t.tipo}</span>
-          ${t.horario ? `<span class="task-badge badge-time">${t.horario}</span>` : ''}
-        </div>
-        <div class="task-poms">${pomsHtml}</div>
+  const done = taskStates[t.id];
+  const pomsArr = t.prioridade==='alta'?[1,0,1,0,1,0,1,0]:t.prioridade==='media'?[1,0,1,0,1,0]:[1,0,1,0];
+  return `<div class="task-card ${done?'done':''}" onclick="toggleTask('${t.id}','${t.responsavel}')" id="task-${t.id}">
+    <div class="task-check ${done?'on':''}">✓</div>
+    <div class="task-dot dot-${t.prioridade}"></div>
+    <div class="task-body">
+      <div class="task-title">${t.titulo}</div>
+      <div class="task-desc">${t.descricao||''}</div>
+      <div class="task-meta">
+        <span class="task-badge badge-client">${t.cliente}</span>
+        <span class="task-badge badge-type">${t.tipo}</span>
+        ${t.horario?`<span class="task-badge badge-time">${t.horario}</span>`:''}
       </div>
-    </div>`;
+      <div class="task-poms">${pomsArr.map(p=>`<div class="pom ${p?'w':'r'}"></div>`).join('')}</div>
+    </div>
+  </div>`;
 }
 
-// ─── TOGGLE ────────────────────────────────────────────────
+// ── TOGGLE ─────────────────────────────────────────────────
 async function toggleTask(taskId, who) {
-  const current = taskStates[taskId] || false;
-  const newState = !current;
+  const newState = !taskStates[taskId];
   taskStates[taskId] = newState;
-
   const card = document.getElementById(`task-${taskId}`);
-  const check = card.querySelector('.task-check');
-  card.classList.toggle('done', newState);
-  check.classList.toggle('on', newState);
-
+  if (card) { card.classList.toggle('done', newState); card.querySelector('.task-check').classList.toggle('on', newState); }
   updatePersonCount(who);
   updateStats();
-
-  await supabase.from('task_states').upsert({
-    task_id: taskId,
-    data: TODAY,
-    done: newState
-  }, { onConflict: 'task_id,data' });
+  await supabaseClient.from('task_states').upsert({ task_id: taskId, data: TODAY, done: newState, updated_at: new Date().toISOString() }, { onConflict: 'task_id,data' });
 }
 
-// ─── REALTIME ──────────────────────────────────────────────
+// ── REALTIME ───────────────────────────────────────────────
 function subscribeRealtime() {
-  supabase.channel('task_states_changes')
-    .on('postgres_changes', {
-      event: '*', schema: 'public', table: 'task_states'
-    }, payload => {
-      const { task_id, done, data } = payload.new || {};
-      if (data !== TODAY) return;
+  supabaseClient.channel('task_states_rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'task_states' }, payload => {
+      if (!payload.new || payload.new.data !== TODAY) return;
+      const { task_id, done } = payload.new;
       if (taskStates[task_id] === done) return;
       taskStates[task_id] = done;
       const card = document.getElementById(`task-${task_id}`);
-      if (card) {
-        card.classList.toggle('done', done);
-        card.querySelector('.task-check').classList.toggle('on', done);
-      }
+      if (card) { card.classList.toggle('done', done); card.querySelector('.task-check').classList.toggle('on', done); }
       const task = allTasks.find(t => t.id === task_id);
       if (task) updatePersonCount(task.responsavel);
       updateStats();
     }).subscribe();
 }
 
-// ─── STATS ─────────────────────────────────────────────────
+// ── STATS ──────────────────────────────────────────────────
 function updateStats() {
   const total = allTasks.length;
   const done = allTasks.filter(t => taskStates[t.id]).length;
-  const open = total - done;
   document.getElementById('total-tasks').textContent = total;
   document.getElementById('done-tasks').textContent = done;
-  document.getElementById('open-tasks').textContent = open;
+  document.getElementById('open-tasks').textContent = total - done;
 }
 
 function updatePersonCount(who) {
   const tasks = allTasks.filter(t => t.responsavel === who);
   const done = tasks.filter(t => taskStates[t.id]).length;
   const total = tasks.length;
-  const pct = total ? Math.round((done/total)*100) : 0;
   document.getElementById(`${who}-done`).textContent = done;
   document.getElementById(`${who}-total`).textContent = total;
-  document.getElementById(`${who}-progress`).style.width = pct + '%';
+  document.getElementById(`${who}-progress`).style.width = (total ? Math.round(done/total*100) : 0) + '%';
 }
 
-// ─── TABS ──────────────────────────────────────────────────
+// ── TABS ───────────────────────────────────────────────────
 function switchTab(id, el) {
   document.querySelectorAll('.pnl').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
@@ -454,15 +367,16 @@ function switchTab(id, el) {
   el.classList.add('on');
 }
 
-// ─── REPORT ────────────────────────────────────────────────
+// ── REPORT ─────────────────────────────────────────────────
 function openReport() {
-  const done = allTasks.filter(t => taskStates[t.id]).map(t => `✅ ${t.titulo} (${t.cliente})`).join('\n');
-  const open = allTasks.filter(t => !taskStates[t.id]).map(t => `⏳ ${t.titulo} (${t.cliente})`).join('\n');
-  const text = `📋 RELATÓRIO DO DIA ${TODAY}\n\n✅ CONCLUÍDO:\n${done || 'Nenhuma'}\n\n⏳ PENDENTE:\n${open || 'Tudo concluído!'}`;
-  navigator.clipboard?.writeText(text).then(() => alert('Relatório copiado! Cole no grupo da Labareda.'));
+  const done = allTasks.filter(t => taskStates[t.id]).map(t => `✅ ${t.titulo} [${t.cliente} · ${t.tipo}]`).join('\n');
+  const open = allTasks.filter(t => !taskStates[t.id]).map(t => `⏳ ${t.titulo} [${t.cliente} · ${t.tipo}]`).join('\n');
+  const text = `📋 RELATÓRIO ${TODAY}\n\n✅ CONCLUÍDO:\n${done||'Nenhuma'}\n\n⏳ PENDENTE:\n${open||'Tudo concluído!'}`;
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => alert('✅ Copiado! Cole no grupo da Labareda.'));
+  else { const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); alert('✅ Copiado!'); }
 }
 
-// ─── CONFIG DO DIA (EDITAR AQUI TODO DIA) ─────────────────
+// ── CONFIG DO DIA (atualizar todo dia) ─────────────────────
 window.LABAREDA_ALERTS = [
   { type: 'red', text: 'Cobranças vencem HOJE — Ricardinho R$500 · Pluma R$500 · Thaís R$450 · Magnolia R$900' },
   { type: 'amber', text: 'Pluma ainda não pagou — cobrar com prazo claro' },
@@ -470,7 +384,7 @@ window.LABAREDA_ALERTS = [
 ];
 
 window.LABAREDA_TIMELINE = [
-  { time: '08h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Kethly ainda na musculação até 09h', off: false, hot: false },
+  { time: '08h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Kethly na musculação até 09h', off: false, hot: false },
   { time: '09h', dot: 'd-free', name: 'Janela produtiva — ambos', sub: 'Até 12h · foco máximo', off: false, hot: false },
   { time: '12h', dot: 'd-block', name: 'Almoço', sub: 'Até 13h · indisponível', off: true, hot: false },
   { time: '13h', dot: 'd-free', name: 'Janela produtiva — ambos', sub: 'Até 15h', off: false, hot: false },
@@ -480,52 +394,5 @@ window.LABAREDA_TIMELINE = [
   { time: '19h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Até 22h', off: false, hot: false }
 ];
 </script>
-
-<!-- ═══════════════════════════════════════════════════════
-     INSTRUÇÕES DE USO
-═══════════════════════════════════════════════════════════
-
-CONFIGURAÇÃO ÚNICA (só na primeira vez):
-1. Acesse supabase.com e crie um projeto gratuito
-2. Vá em Settings → API
-3. Copie a Project URL e a anon key
-4. Cole no formulário que aparece ao abrir o site
-
-CRIAR AS TABELAS NO SUPABASE (SQL Editor):
-
--- Tabela de tarefas
-CREATE TABLE tarefas (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  data date NOT NULL,
-  titulo text NOT NULL,
-  descricao text,
-  prioridade text CHECK (prioridade IN ('alta','media','baixa')),
-  prioridade_ordem int DEFAULT 1,
-  responsavel text CHECK (responsavel IN ('ed','kt')),
-  cliente text,
-  tipo text,
-  horario text,
-  ordem int DEFAULT 0
-);
-
--- Tabela de estados dos checks
-CREATE TABLE task_states (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  task_id uuid REFERENCES tarefas(id) ON DELETE CASCADE,
-  data date NOT NULL,
-  done boolean DEFAULT false,
-  updated_at timestamptz DEFAULT now(),
-  UNIQUE(task_id, data)
-);
-
--- Habilitar realtime
-ALTER TABLE task_states REPLICA IDENTITY FULL;
-
-INSERIR TAREFAS DO DIA (exemplo para 10/04):
-Copie e cole no SQL Editor do Supabase após criar as tabelas.
-O Claude vai gerar o SQL de inserção todo dia junto com o plano.
-
-══════════════════════════════════════════════════════════ -->
-
 </body>
 </html>
