@@ -6,393 +6,965 @@
 <title>Labareda Ops</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-  :root {
-    --bg: #0f0f0f; --bg2: #1a1a1a; --bg3: #222;
-    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
-    --text: #f0f0f0; --text2: #999; --text3: #666;
-    --orange: #FF5C00; --red: #E24B4A; --amber: #EF9F27;
-    --green: #1D9E75; --blue: #378ADD;
-    --radius: 10px; --radius-sm: 6px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+:root {
+  --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#222;--bg4:#2a2a2a;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#f0f0f0;--text2:#999;--text3:#666;
+  --orange:#FF5C00;--red:#E24B4A;--amber:#EF9F27;--green:#1D9E75;--blue:#378ADD;--purple:#7F77DD;
+  --radius:10px;--radius-sm:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
 
-  .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-  .logo { font-size: 18px; font-weight: 700; color: var(--orange); }
-  .header-date { font-size: 13px; color: var(--text2); }
-  .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 4px; }
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:400px;width:100%}
+.login-logo{font-size:24px;font-weight:700;color:var(--orange);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.field{margin-bottom:14px}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:6px}
+.field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:11px 13px;color:var(--text);font-size:14px;outline:none;transition:border .15s}
+.field input:focus{border-color:var(--orange)}
+.login-btn{width:100%;padding:12px;background:var(--orange);border:none;border-radius:var(--radius-sm);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .15s}
+.login-btn:hover{background:#e05200}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;display:none;text-align:center}
 
-  .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 16px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); }
-  .stat { text-align: center; }
-  .stat-n { font-size: 22px; font-weight: 700; }
-  .stat-n.orange { color: var(--orange); } .stat-n.green { color: var(--green); } .stat-n.red { color: var(--red); }
-  .stat-l { font-size: 11px; color: var(--text2); margin-top: 2px; }
+/* LAYOUT */
+.app{display:none;min-height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:50}
+.sidebar-logo{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sidebar-logo-text{font-size:16px;font-weight:700;color:var(--orange)}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:14px;color:var(--text2);cursor:pointer;border-radius:0;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(255,92,0,0.1);color:var(--orange);border-left-color:var(--orange)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-user{padding:16px 20px;border-top:1px solid var(--border)}
+.user-info{font-size:13px;color:var(--text2)}
+.user-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.logout-btn{font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;padding:4px 0;margin-top:6px;display:block}
+.logout-btn:hover{color:var(--red)}
 
-  .alerts { padding: 12px 20px; display: flex; flex-direction: column; gap: 8px; }
-  .alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; }
-  .alert-red { background: rgba(226,75,74,0.15); color: #ff8080; border: 1px solid rgba(226,75,74,0.3); }
-  .alert-amber { background: rgba(239,159,39,0.12); color: #ffc066; border: 1px solid rgba(239,159,39,0.25); }
-  .alert-green { background: rgba(29,158,117,0.12); color: #5dd4a5; border: 1px solid rgba(29,158,117,0.25); }
+.main{margin-left:220px;padding:24px;min-height:100vh}
+.page{display:none}.page.active{display:block}
 
-  .timeline-section { padding: 12px 20px; }
-  .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
-  .tl { display: flex; flex-direction: column; gap: 4px; }
-  .tl-item { display: flex; gap: 10px; align-items: stretch; }
-  .tl-time { font-size: 11px; color: var(--text3); width: 44px; flex-shrink: 0; padding-top: 10px; text-align: right; }
-  .tl-line { display: flex; flex-direction: column; align-items: center; width: 16px; flex-shrink: 0; }
-  .tl-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 11px; }
-  .tl-bar { width: 1px; background: var(--border2); flex: 1; margin-top: 2px; }
-  .d-free { background: var(--green); } .d-block { background: var(--text3); } .d-hot { background: var(--red); } .d-orange { background: var(--orange); }
-  .tl-card { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 3px; }
-  .tl-card.off { opacity: 0.5; } .tl-card.hot { border-left: 2px solid var(--red); }
-  .tl-name { font-size: 13px; font-weight: 500; } .tl-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+/* HEADER */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:600}
+.page-date{font-size:13px;color:var(--text2);margin-top:3px}
+.online-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
 
-  .tabs-wrap { padding: 12px 20px 0; }
-  .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); }
-  .tab { font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; color: var(--text2); border: 1px solid transparent; border-bottom: none; background: transparent; transition: all .15s; }
-  .tab.on { background: var(--bg2); color: var(--orange); border-color: var(--border); border-bottom: 1px solid var(--bg2); margin-bottom: -1px; }
-  .pnl { display: none; padding: 16px 20px; } .pnl.on { display: block; }
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stat-n{font-size:28px;font-weight:700;margin-bottom:4px}
+.stat-n.orange{color:var(--orange)}.stat-n.green{color:var(--green)}.stat-n.amber{color:var(--amber)}.stat-n.red{color:var(--red)}
+.stat-l{font-size:12px;color:var(--text2)}
 
-  .priority-block { margin-bottom: 20px; }
-  .priority-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .priority-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-  .priority-label.alta { color: var(--red); } .priority-label.media { color: var(--amber); } .priority-label.baixa { color: var(--green); }
-  .priority-meta { font-size: 11px; color: var(--text3); }
-  .poms { display: flex; gap: 3px; margin-left: auto; }
-  .pom { width: 12px; height: 12px; border-radius: 2px; }
-  .pom.w { background: var(--red); opacity: 0.7; } .pom.r { background: var(--blue); opacity: 0.5; }
+/* ALERTS */
+.alert-box{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.alert-warn{background:rgba(239,159,39,0.1);color:#ffc066;border:1px solid rgba(239,159,39,0.25)}
+.alert-red{background:rgba(226,75,74,0.1);color:#ff8080;border:1px solid rgba(226,75,74,0.25)}
+.alert-green{background:rgba(29,158,117,0.1);color:#5dd4a5;border:1px solid rgba(29,158,117,0.25)}
+.alert-blue{background:rgba(55,138,221,0.1);color:#70b3f0;border:1px solid rgba(55,138,221,0.25)}
 
-  .task-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; transition: all .18s; user-select: none; }
-  .task-card:hover { border-color: var(--border2); }
-  .task-card.done { opacity: 0.35; }
-  .task-card.done .task-title { text-decoration: line-through; }
-  .task-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; transition: all .15s; }
-  .task-check.on { background: var(--green); border-color: var(--green); color: #fff; }
-  .task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-  .dot-alta { background: var(--red); } .dot-media { background: var(--amber); } .dot-baixa { background: var(--green); }
-  .task-body { flex: 1; min-width: 0; }
-  .task-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; line-height: 1.4; }
-  .task-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
-  .task-meta { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-  .task-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
-  .badge-client { background: rgba(255,92,0,0.15); color: #ff8c44; }
-  .badge-type { background: rgba(55,138,221,0.15); color: #70b3f0; }
-  .badge-time { background: rgba(255,255,255,0.06); color: var(--text3); }
-  .task-poms { display: flex; gap: 2px; margin-top: 6px; }
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--text2);background:transparent;transition:all .15s}
+.tab-btn:hover{border-color:var(--orange);color:var(--orange)}
+.tab-btn.active{background:var(--orange);border-color:var(--orange);color:#fff}
 
-  .done-bar { font-size: 13px; color: var(--text2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .done-count { font-weight: 700; color: var(--green); font-size: 15px; }
-  .progress-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
+/* TASK CARDS */
+.priority-section{margin-bottom:20px}
+.priority-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.priority-dot{width:10px;height:10px;border-radius:50%}
+.dot-alta{background:var(--red)}.dot-media{background:var(--amber)}.dot-baixa{background:var(--green)}
+.priority-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.title-alta{color:var(--red)}.title-media{color:var(--amber)}.title-baixa{color:var(--green)}
+.priority-count{font-size:11px;color:var(--text3);margin-left:auto}
+.poms{display:flex;gap:3px}
+.pom{width:11px;height:11px;border-radius:2px}
+.pom-w{background:var(--red);opacity:.7}.pom-r{background:var(--blue);opacity:.5}
 
-  .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
-  .footer { padding: 20px; border-top: 1px solid var(--border); margin-top: 10px; }
-  .report-btn { width: 100%; padding: 12px; background: rgba(255,92,0,0.1); border: 1px solid rgba(255,92,0,0.3); border-radius: var(--radius); color: var(--orange); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s; }
-  .report-btn:hover { background: rgba(255,92,0,0.2); }
+.task-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:all .18s;user-select:none}
+.task-card:hover{border-color:var(--border2)}
+.task-card.done{opacity:.3;pointer-events:none}
+.task-card.done .task-title{text-decoration:line-through}
+.task-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s}
+.task-check.on{background:var(--green);border-color:var(--green);color:#fff}
+.task-body{flex:1;min-width:0}
+.task-title{font-size:14px;font-weight:500;margin-bottom:4px;line-height:1.4}
+.task-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px}
+.task-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600}
+.badge-client{background:rgba(255,92,0,0.15);color:#ff8c44}
+.badge-type{background:rgba(55,138,221,0.15);color:#70b3f0}
+.badge-time{background:rgba(255,255,255,0.06);color:var(--text3)}
+.badge-alta{background:rgba(226,75,74,0.15);color:#ff8080}
+.badge-media{background:rgba(239,159,39,0.15);color:#ffc066}
+.badge-baixa{background:rgba(29,158,117,0.15);color:#5dd4a5}
+.badge-pendente{background:rgba(239,159,39,0.15);color:#ffc066}
+.badge-atrasada{background:rgba(226,75,74,0.15);color:#ff8080}
 
-  .setup-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .setup-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; max-width: 480px; width: 100%; }
-  .setup-title { font-size: 20px; font-weight: 700; color: var(--orange); margin-bottom: 8px; }
-  .setup-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
-  .setup-field { margin-bottom: 14px; }
-  .setup-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
-  .setup-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text); font-size: 13px; outline: none; }
-  .setup-input:focus { border-color: var(--orange); }
-  .setup-btn { width: 100%; padding: 12px; background: var(--orange); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 6px; }
-  .setup-btn:hover { background: #e05200; }
-  .setup-note { font-size: 11px; color: var(--text3); margin-top: 14px; line-height: 1.6; }
-  .error-msg { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+/* PROGRESS */
+.progress-wrap{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.progress-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.progress-text{font-size:13px;color:var(--text2);white-space:nowrap}
 
-  @media (max-width: 480px) {
-    .stats-bar { grid-template-columns: repeat(2, 1fr); }
-    .pnl { padding: 12px 16px; }
-  }
+/* NEXT DAY BTN */
+.next-day-wrap{text-align:center;padding:30px;display:none}
+.next-day-btn{padding:14px 28px;background:rgba(29,158,117,0.15);border:1px solid var(--green);border-radius:var(--radius);color:var(--green);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s}
+.next-day-btn:hover{background:rgba(29,158,117,0.25)}
+
+/* CLIENT STATUS */
+.clients-sidebar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.clients-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.client-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
+.client-item:last-child{border-bottom:none}
+.client-item:hover{opacity:.8}
+.client-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.client-info{flex:1;min-width:0}
+.client-name{font-size:14px;font-weight:500}
+.client-status{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.client-arrow{color:var(--text3);font-size:12px}
+
+/* CALENDAR */
+.calendar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.cal-title{font-size:16px;font-weight:600}
+.cal-nav{display:flex;gap:8px}
+.cal-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 12px;color:var(--text2);cursor:pointer;font-size:13px}
+.cal-btn:hover{color:var(--text)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border)}
+.cal-day-header{background:var(--bg2);padding:8px 0;text-align:center;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase}
+.cal-day{background:var(--bg2);padding:10px;min-height:70px;cursor:pointer;transition:background .15s;position:relative}
+.cal-day:hover{background:var(--bg3)}
+.cal-day.today{background:rgba(255,92,0,0.08)}
+.cal-day.other-month{opacity:.3}
+.cal-day.selected{background:rgba(255,92,0,0.12);border:1px solid rgba(255,92,0,0.3)}
+.cal-day-num{font-size:13px;font-weight:500;margin-bottom:4px}
+.cal-day.today .cal-day-num{color:var(--orange);font-weight:700}
+.cal-tasks-dots{display:flex;gap:3px;flex-wrap:wrap}
+.cal-dot{width:6px;height:6px;border-radius:50%}
+.cal-dot-pending{background:var(--amber)}.cal-dot-done{background:var(--green)}.cal-dot-late{background:var(--red)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px}
+.modal-close:hover{color:var(--text)}
+
+/* ADMIN LAYOUT */
+.admin-layout{display:grid;grid-template-columns:1fr 280px;gap:20px}
+@media(max-width:900px){.admin-layout{grid-template-columns:1fr}.clients-sidebar{display:none}}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:40px;color:var(--text3)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-text{font-size:14px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:relative;flex-direction:row}
+  .main{margin-left:0}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .sidebar-nav{display:flex;padding:8px;overflow-x:auto}
+  .nav-item{border-left:none;border-bottom:3px solid transparent;white-space:nowrap}
+  .nav-item.active{border-bottom-color:var(--orange)}
+  .sidebar-user{display:none}
+  .app{flex-direction:column}
+}
 </style>
 </head>
 <body>
 
-<div class="setup-overlay" id="setup-overlay">
-  <div class="setup-box">
-    <div class="setup-title">🔥 Labareda Ops</div>
-    <div class="setup-sub">Configure a conexão com o Supabase para ativar o painel com tempo real e persistência de dados.</div>
-    <div class="setup-field">
-      <label class="setup-label">Supabase URL</label>
-      <input class="setup-input" id="sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co" />
-    </div>
-    <div class="setup-field">
-      <label class="setup-label">Supabase Anon Key (Legacy)</label>
-      <input class="setup-input" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
-    </div>
-    <div class="error-msg" id="error-msg">❌ Erro ao conectar. Verifique a URL e a chave.</div>
-    <button class="setup-btn" id="connect-btn" onclick="saveConfig()">Conectar e Entrar</button>
-    <div class="setup-note">
-      📌 Settings → API → Legacy anon, service_role API keys → copie a chave <strong>anon public</strong> (começa com eyJ...)
-    </div>
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">🔥 Labareda Ops</div>
+    <div class="login-sub">Sistema operacional da agência</div>
+    <div class="field"><label>Login</label><input id="login-input" type="text" placeholder="Seu login" autocomplete="username" /></div>
+    <div class="field"><label>Senha</label><input id="senha-input" type="password" placeholder="Sua senha" autocomplete="current-password" /></div>
+    <button class="login-btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
+    <div class="login-err" id="login-err">Login ou senha incorretos.</div>
   </div>
 </div>
 
-<div class="header">
-  <div class="logo">🔥 Labareda</div>
-  <div class="header-date" id="header-date"></div>
-  <div style="font-size:12px;color:var(--text2)"><span class="online-dot"></span>Online</div>
-</div>
+<!-- APP -->
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span style="font-size:20px">🔥</span>
+      <div class="sidebar-logo-text">Labareda Ops</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showPage('painel',this)" id="nav-painel">
+        <span class="nav-icon">⚡</span> Painel
+      </div>
+      <div class="nav-item" onclick="showPage('calendario',this)" id="nav-calendario">
+        <span class="nav-icon">📅</span> Calendário
+      </div>
+      <div class="nav-item admin-only" onclick="showPage('equipe',this)" id="nav-equipe">
+        <span class="nav-icon">👥</span> Equipe
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-name" id="sidebar-user-name">-</div>
+      <div class="user-info" id="sidebar-user-role">-</div>
+      <button class="logout-btn" onclick="fazerLogout()">Sair da conta</button>
+    </div>
+  </div>
 
-<div class="stats-bar">
-  <div class="stat"><div class="stat-n orange" id="total-tasks">-</div><div class="stat-l">tarefas hoje</div></div>
-  <div class="st"><div class="stat-n green" id="done-tasks">0</div><div class="stat-l">concluídas</div></div>
-  <div class="stat"><div class="stat-n" id="open-tasks">-</div><div class="stat-l">em aberto</div></div>
-  <div class="stat"><div class="stat-n red" id="late-tasks">0</div><div class="stat-l">atrasadas</div></div>
-</div>
+  <!-- MAIN -->
+  <div class="main">
 
-<div class="alerts" id="alerts-container"></div>
-<div class="timeline-section"><div class="section-title">Linha do tempo</div><div class="tl" id="timeline-container"></div></div>
+    <!-- PAINEL -->
+    <div class="page active" id="page-painel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Painel Geral</div>
+          <div class="page-date" id="painel-date">-</div>
+        </div>
+        <div class="online-badge"><div class="online-dot"></div>Online</div>
+      </div>
 
-<div class="tabs-wrap">
-  <div class="tabs">
-    <div class="tab on" onclick="switchTab('ed',this)">Edivaldo</div>
-    <div class="tab" onclick="switchTab('kt',this)">Kethly</div>
+      <div id="alerts-container"></div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-n orange" id="stat-total">-</div><div class="stat-l">Total hoje</div></div>
+        <div class="stat-card"><div class="stat-n green" id="stat-done">0</div><div class="stat-l">Concluídas</div></div>
+        <div class="stat-card"><div class="stat-n amber" id="stat-open">-</div><div class="stat-l">Em aberto</div></div>
+        <div class="stat-card"><div class="stat-n red" id="stat-late">0</div><div class="stat-l">Atrasadas</div></div>
+      </div>
+
+      <!-- TABS (admin vê todos, prestador vê só o seu) -->
+      <div class="tabs" id="tabs-container"></div>
+
+      <div class="admin-layout">
+        <div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+            <div class="progress-text" id="progress-text">0 / 0</div>
+          </div>
+          <div id="tasks-container"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">Carregando tarefas...</div></div></div>
+          <div class="next-day-wrap" id="next-day-wrap">
+            <button class="next-day-btn" onclick="verProximoDia()">🎉 Todas concluídas! Ver tarefas de amanhã →</button>
+          </div>
+          <div style="padding:12px 0 0">
+            <button onclick="gerarRelatorio()" style="width:100%;padding:13px;background:rgba(255,92,0,0.1);border:1px solid rgba(255,92,0,0.35);border-radius:var(--radius);color:var(--orange);font-size:14px;font-weight:600;cursor:pointer" onmouseover="this.style.background='rgba(255,92,0,0.2)'" onmouseout="this.style.background='rgba(255,92,0,0.1)'">📋 Enviar relatório do dia</button>
+          </div>
+        </div>
+        <div id="clients-sidebar-wrap" class="admin-only">
+          <div class="clients-sidebar">
+            <div class="clients-title">Status dos Clientes</div>
+            <div id="clients-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDÁRIO -->
+    <div class="page" id="page-calendario">
+      <div class="page-header">
+        <div><div class="page-title">Calendário</div><div class="page-date">Clique em uma data para ver as tarefas</div></div>
+      </div>
+      <div class="calendar-wrap">
+        <div class="cal-header">
+          <button class="cal-btn" onclick="navMes(-1)">← Anterior</button>
+          <div class="cal-title" id="cal-month-title">-</div>
+          <button class="cal-btn" onclick="navMes(1)">Próximo →</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+    </div>
+
+    <!-- EQUIPE (só admin) -->
+    <div class="page admin-only" id="page-equipe">
+      <div class="page-header">
+        <div><div class="page-title">Equipe</div><div class="page-date">Visão por responsável</div></div>
+      </div>
+      <div id="equipe-content"></div>
+    </div>
+
   </div>
 </div>
 
-<div id="pnl-ed" class="pnl on">
-  <div class="done-bar">Concluídas: <span class="done-count" id="ed-done">0</span> de <span id="ed-total">0</span><div class="progress-bar"><div class="progress-fill" id="ed-progress" style="width:0%"></div></div></div>
-  <div id="ed-tasks"><div class="loading">Carregando tarefas...</div></div>
-</div>
-
-<div id="pnl-kt" class="pnl">
-  <div class="done-bar">Concluídas: <span class="done-count" id="kt-done">0</span> de <span id="kt-total">0</span><div class="progress-bar"><div class="progress-fill" id="kt-progress" style="width:0%"></div></div></div>
-  <div id="kt-tasks"><div class="loading">Carregando tarefas...</div></div>
-</div>
-
-<div class="footer">
-  <button class="report-btn" onclick="openReport()">📋 Enviar relatório do dia</button>
+<!-- MODAL CALENDÁRIO -->
+<div class="modal-overlay" id="cal-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="cal-modal-title">-</div>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div id="cal-modal-content"></div>
+  </div>
 </div>
 
 <script>
-let supabaseClient = null;
+// ── CONFIG ─────────────────────────────────────────────────
+const SB_URL = 'https://gdhnjgdnwbuntonapxgz.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkaG5qZ2Rud2J1bnRvbmFweGd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQ3MzgsImV4cCI6MjA5MTQwMDczOH0.QJWJlL9TnUDi79_InzA9rMZeMS0UAXD9DNiIOhsiko4';
+
+let sb = null;
+let currentUser = null;
 let allTasks = [];
 let taskStates = {};
+let currentTab = null;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let viewingDate = new Date().toISOString().split('T')[0];
+
 const TODAY = new Date().toISOString().split('T')[0];
 
-// ── SETUP ──────────────────────────────────────────────────
-async function saveConfig() {
-  const url = document.getElementById('sb-url').value.trim();
-  const key = document.getElementById('sb-key').value.trim();
-  const btn = document.getElementById('connect-btn');
-  const err = document.getElementById('error-msg');
+const CLIENTS_CONFIG = [
+  { id:'Magnolia', color:'#E24B4A', status:'Identidade visual + direcionamento criativo' },
+  { id:'Marcos', color:'#EF9F27', status:'Reel 002 — Quer emagrecer mais rápido?' },
+  { id:'Pluma', color:'#E24B4A', status:'Reel 001 — Abri a caixa e...' },
+  { id:'Ricardinho', color:'#EF9F27', status:'Design + vídeos simples de produto' },
+  { id:'Thaís', color:'#1D9E75', status:'Finalizado' },
+  { id:'Aline', color:'#EF9F27', status:'Entrega pendente do mês' }
+];
 
-  if (!url || !key) { err.textContent = '❌ Preencha os dois campos!'; err.style.display='block'; return; }
+const RESPONSAVEL_LABELS = { ed:'Edivaldo', kt:'Kethly', danilo:'Danilo', micheline:'Micheline' };
 
-  btn.textContent = 'Conectando...';
-  btn.disabled = true;
-  err.style.display = 'none';
-
-  try {
-    const client = window.supabase.createClient(url, key);
-    // Testa a conexão
-    const { error } = await client.from('tarefas').select('id').limit(1);
-    if (error) throw error;
-
-    localStorage.setItem('sb_url', url);
-    localStorage.setItem('sb_key', key);
-    supabaseClient = client;
-    document.getElementById('setup-overlay').style.display = 'none';
-    loadTasks();
-    subscribeRealtime();
-  } catch(e) {
-    err.textContent = '❌ Erro: ' + (e.message || 'Verifique a URL e a chave.');
-    err.style.display = 'block';
-    btn.textContent = 'Conectar e Entrar';
-    btn.disabled = false;
-  }
-}
-
+// ── INIT ───────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  setHeaderDate();
-  renderAlerts();
-  renderTimeline();
-  const url = localStorage.getItem('sb_url');
-  const key = localStorage.getItem('sb_key');
-  if (url && key) {
-    document.getElementById('sb-url').value = url;
-    document.getElementById('sb-key').value = key;
-    document.getElementById('setup-overlay').style.display = 'none';
-    try {
-      supabaseClient = window.supabase.createClient(url, key);
-      loadTasks();
-      subscribeRealtime();
-    } catch(e) {
-      document.getElementById('setup-overlay').style.display = 'flex';
-    }
+  sb = window.supabase.createClient(SB_URL, SB_KEY);
+  const saved = localStorage.getItem('lb_user');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    entrarNoApp();
   }
 });
 
-function setHeaderDate() {
-  const now = new Date();
-  const days = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  document.getElementById('header-date').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+// ── LOGIN ──────────────────────────────────────────────────
+async function fazerLogin() {
+  const login = document.getElementById('login-input').value.trim();
+  const senha = document.getElementById('senha-input').value.trim();
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+
+  if (!login || !senha) { err.style.display='block'; err.textContent='Preencha login e senha.'; return; }
+  btn.textContent = 'Entrando...'; btn.disabled = true; err.style.display='none';
+
+  const { data, error } = await sb.from('usuarios').select('*').eq('login', login).eq('senha_hash', senha).eq('ativo', true).single();
+
+  if (error || !data) {
+    err.style.display='block'; err.textContent='Login ou senha incorretos.';
+    btn.textContent='Entrar'; btn.disabled=false; return;
+  }
+
+  currentUser = data;
+  localStorage.setItem('lb_user', JSON.stringify(data));
+  entrarNoApp();
 }
 
-// ── LOAD ───────────────────────────────────────────────────
-async function loadTasks() {
-  const { data: tasks, error } = await supabaseClient.from('tarefas').select('*').eq('data', TODAY).order('prioridade_ordem').order('ordem');
-  if (error) { console.error(error); return; }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-wrap').style.display !== 'none') fazerLogin();
+});
+
+function fazerLogout() {
+  localStorage.removeItem('lb_user');
+  currentUser = null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-wrap').style.display='flex';
+  document.getElementById('login-input').value='';
+  document.getElementById('senha-input').value='';
+}
+
+function entrarNoApp() {
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('app').style.display='flex';
+
+  document.getElementById('sidebar-user-name').textContent = currentUser.nome;
+  document.getElementById('sidebar-user-role').textContent = currentUser.papel === 'admin' ? 'Administrador' : 'Prestador';
+  document.getElementById('painel-date').textContent = formatDate(new Date());
+
+  // Esconder itens admin para prestadores
+  if (currentUser.papel !== 'admin') {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display='none');
+  }
+
+  loadTasks();
+  subscribeRealtime();
+  renderCalendar();
+}
+
+// ── LOAD TASKS ─────────────────────────────────────────────
+async function loadTasks(date = TODAY) {
+  viewingDate = date;
+
+  let query = sb.from('tarefas').select('*').eq('data', date).order('prioridade_ordem').order('ordem');
+
+  // Prestadores veem só as suas tarefas
+  if (currentUser.papel === 'prestador') {
+    query = query.eq('responsavel', currentUser.responsavel_id);
+  }
+
+  const { data: tasks } = await query;
   allTasks = tasks || [];
 
-  const { data: states } = await supabaseClient.from('task_states').select('*').eq('data', TODAY);
+  const { data: states } = await sb.from('task_states').select('*').eq('data', date);
   taskStates = {};
   (states || []).forEach(s => { taskStates[s.task_id] = s.done; });
 
-  renderTasks('ed');
-  renderTasks('kt');
-  updateStats();
+  // Verificar atrasadas (tarefas de dias anteriores não concluídas)
+  if (date === TODAY) await loadLate();
+
+  renderTabs();
+  renderStats();
+  renderAlerts();
+  renderClients();
 }
 
-// ── RENDER ─────────────────────────────────────────────────
-function renderAlerts() {
-  document.getElementById('alerts-container').innerHTML = (window.LABAREDA_ALERTS || []).map(a =>
-    `<div class="alert alert-${a.type}">${a.text}</div>`).join('');
+async function loadLate() {
+  let query = sb.from('tarefas').select('*').lt('data', TODAY);
+  if (currentUser.papel === 'prestador') query = query.eq('responsavel', currentUser.responsavel_id);
+  const { data: oldTasks } = await query;
+
+  if (!oldTasks?.length) return;
+
+  const ids = oldTasks.map(t => t.id);
+  const { data: oldStates } = await sb.from('task_states').select('*').in('task_id', ids);
+  const doneIds = new Set((oldStates||[]).filter(s=>s.done).map(s=>s.task_id));
+  const late = oldTasks.filter(t => !doneIds.has(t.id));
+
+  if (late.length) {
+    const alert = document.createElement('div');
+    alert.className = 'alert-box alert-warn';
+    alert.innerHTML = `⚠️ ${late.length} tarefas pendentes de dias anteriores`;
+    alert.style.cursor = 'pointer';
+    alert.onclick = () => { /* poderia abrir modal */ };
+    document.getElementById('alerts-container').prepend(alert);
+  }
 }
 
-function renderTimeline() {
-  const tl = window.LABAREDA_TIMELINE || [];
-  document.getElementById('timeline-container').innerHTML = tl.map((item, i) => `
-    <div class="tl-item">
-      <div class="tl-time">${item.time}</div>
-      <div class="tl-line"><div class="tl-dot ${item.dot}"></div>${i < tl.length-1 ? '<div class="tl-bar"></div>' : ''}</div>
-      <div class="tl-card ${item.off?'off':''} ${item.hot?'hot':''}">
-        <div class="tl-name">${item.name}</div><div class="tl-sub">${item.sub}</div>
-      </div>
-    </div>`).join('');
+// ── TABS ───────────────────────────────────────────────────
+function renderTabs() {
+  const container = document.getElementById('tabs-container');
+  if (currentUser.papel === 'prestador') {
+    currentTab = currentUser.responsavel_id;
+    renderTasksForTab(currentTab);
+    return;
+  }
+
+  const responsaveis = [...new Set(allTasks.map(t => t.responsavel))];
+  const allTabs = ['geral', ...responsaveis];
+
+  container.innerHTML = allTabs.map(r => `
+    <button class="tab-btn ${(!currentTab && r==='geral') || currentTab===r ? 'active' : ''}"
+      onclick="setTab('${r}',this)">
+      ${r === 'geral' ? 'Geral' : RESPONSAVEL_LABELS[r] || r}
+    </button>`).join('');
+
+  if (!currentTab) currentTab = 'geral';
+  renderTasksForTab(currentTab);
 }
 
-function renderTasks(who) {
-  const tasks = allTasks.filter(t => t.responsavel === who);
-  const container = document.getElementById(`${who}-tasks`);
-  if (!tasks.length) { container.innerHTML = '<div class="loading">Nenhuma tarefa para hoje.</div>'; return; }
+function setTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTasksForTab(tab);
+}
+
+// ── RENDER TASKS ───────────────────────────────────────────
+function renderTasksForTab(tab) {
+  const tasks = tab === 'geral' ? allTasks : allTasks.filter(t => t.responsavel === tab);
+  const pending = tasks.filter(t => !taskStates[t.id]);
+  const done = tasks.filter(t => taskStates[t.id]);
+
+  renderStats(tasks);
+
+  const container = document.getElementById('tasks-container');
+  if (!pending.length && !done.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Nenhuma tarefa para hoje nesta aba.</div></div>';
+    return;
+  }
 
   const priorities = ['alta','media','baixa'];
   const labels = { alta:'Alta', media:'Média', baixa:'Baixa' };
-  const hours = { alta:'3h · 1h cada', media:'2h total', baixa:'1h total' };
-  const pomCount = { alta:4, media:3, baixa:2 };
+  const pomCounts = { alta:4, media:3, baixa:2 };
 
   let html = '';
+
+  // Pendentes por prioridade
   priorities.forEach(p => {
-    const group = tasks.filter(t => t.prioridade === p);
+    const group = pending.filter(t => t.prioridade === p);
     if (!group.length) return;
-    const poms = Array(pomCount[p]).fill(0).map((_,i) => `<div class="pom ${i%2===0?'w':'r'}"></div>`).join('');
-    html += `<div class="priority-block">
+    const poms = Array(pomCounts[p]).fill(0).map((_,i)=>`<div class="pom ${i%2===0?'pom-w':'pom-r'}"></div>`).join('');
+    html += `<div class="priority-section">
       <div class="priority-header">
-        <span class="priority-label ${p}">${labels[p]}</span>
-        <span class="priority-meta">${hours[p]}</span>
+        <div class="priority-dot dot-${p}"></div>
+        <div class="priority-title title-${p}">${labels[p]}</div>
+        <div class="priority-count">${group.length} tarefa${group.length>1?'s':''}</div>
         <div class="poms">${poms}</div>
       </div>
-      ${group.map(t => renderTask(t)).join('')}
+      ${group.map(t => renderTaskCard(t)).join('')}
     </div>`;
   });
+
   container.innerHTML = html;
-  updatePersonCount(who);
+
+  // Verificar se todas concluídas
+  const nextDayWrap = document.getElementById('next-day-wrap');
+  nextDayWrap.style.display = pending.length === 0 && done.length > 0 && viewingDate === TODAY ? 'block' : 'none';
 }
 
-function renderTask(t) {
+function renderTaskCard(t) {
   const done = taskStates[t.id];
-  const pomsArr = t.prioridade==='alta'?[1,0,1,0,1,0,1,0]:t.prioridade==='media'?[1,0,1,0,1,0]:[1,0,1,0];
   return `<div class="task-card ${done?'done':''}" onclick="toggleTask('${t.id}','${t.responsavel}')" id="task-${t.id}">
     <div class="task-check ${done?'on':''}">✓</div>
-    <div class="task-dot dot-${t.prioridade}"></div>
     <div class="task-body">
       <div class="task-title">${t.titulo}</div>
       <div class="task-desc">${t.descricao||''}</div>
       <div class="task-meta">
-        <span class="task-badge badge-client">${t.cliente}</span>
-        <span class="task-badge badge-type">${t.tipo}</span>
-        ${t.horario?`<span class="task-badge badge-time">${t.horario}</span>`:''}
+        <span class="badge badge-client">${t.cliente}</span>
+        <span class="badge badge-type">${t.tipo}</span>
+        ${t.horario?`<span class="badge badge-time">${t.horario}</span>`:''}
+        <span class="badge badge-${t.prioridade}">${t.prioridade}</span>
+        ${RESPONSAVEL_LABELS[t.responsavel]?`<span class="badge badge-time">${RESPONSAVEL_LABELS[t.responsavel]}</span>`:''}
       </div>
-      <div class="task-poms">${pomsArr.map(p=>`<div class="pom ${p?'w':'r'}"></div>`).join('')}</div>
     </div>
   </div>`;
+}
+
+// ── STATS ──────────────────────────────────────────────────
+function renderStats(tasks) {
+  tasks = tasks || allTasks;
+  const total = tasks.length;
+  const done = tasks.filter(t => taskStates[t.id]).length;
+  const open = total - done;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-open').textContent = open;
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-text').textContent = `${done} / ${total}`;
+}
+
+// ── ALERTS ─────────────────────────────────────────────────
+function renderAlerts() {
+  const c = document.getElementById('alerts-container');
+  c.innerHTML = (window.LABAREDA_ALERTS||[]).map(a =>
+    `<div class="alert-box alert-${a.type}" style="margin-bottom:8px">${a.text}</div>`).join('');
+}
+
+// ── CLIENTS ────────────────────────────────────────────────
+function renderClients() {
+  if (currentUser.papel !== 'admin') return;
+  const list = document.getElementById('clients-list');
+  list.innerHTML = CLIENTS_CONFIG.map(c => `
+    <div class="client-item">
+      <div class="client-dot" style="background:${c.color}"></div>
+      <div class="client-info">
+        <div class="client-name">${c.id}</div>
+        <div class="client-status">${c.status}</div>
+      </div>
+      <div class="client-arrow">›</div>
+    </div>`).join('');
 }
 
 // ── TOGGLE ─────────────────────────────────────────────────
 async function toggleTask(taskId, who) {
   const newState = !taskStates[taskId];
   taskStates[taskId] = newState;
+
   const card = document.getElementById(`task-${taskId}`);
-  if (card) { card.classList.toggle('done', newState); card.querySelector('.task-check').classList.toggle('on', newState); }
-  updatePersonCount(who);
-  updateStats();
-  await supabaseClient.from('task_states').upsert({ task_id: taskId, data: TODAY, done: newState, updated_at: new Date().toISOString() }, { onConflict: 'task_id,data' });
+  if (card) {
+    card.classList.toggle('done', newState);
+    card.querySelector('.task-check').classList.toggle('on', newState);
+    if (newState) {
+      setTimeout(() => {
+        card.style.maxHeight = card.scrollHeight+'px';
+        card.style.overflow='hidden';
+        card.style.transition='max-height .4s, opacity .4s';
+        setTimeout(()=>{ card.style.maxHeight='0'; card.style.opacity='0'; card.style.marginBottom='0'; card.style.padding='0'; }, 50);
+        setTimeout(()=>{ renderTasksForTab(currentTab); renderStats(); checkAllDone(); }, 450);
+      }, 300);
+    }
+  }
+
+  await sb.from('task_states').upsert({ task_id: taskId, data: viewingDate, done: newState, updated_at: new Date().toISOString() }, { onConflict: 'task_id,data' });
+}
+
+function checkAllDone() {
+  const tasks = currentTab === 'geral' ? allTasks : allTasks.filter(t => t.responsavel === currentTab);
+  const pending = tasks.filter(t => !taskStates[t.id]);
+  const nextDayWrap = document.getElementById('next-day-wrap');
+  nextDayWrap.style.display = pending.length === 0 && tasks.length > 0 && viewingDate === TODAY ? 'block' : 'none';
+}
+
+// ── NEXT DAY ───────────────────────────────────────────────
+async function verProximoDia() {
+  const nextDate = new Date(viewingDate);
+  nextDate.setDate(nextDate.getDate() + 1);
+  const nextStr = nextDate.toISOString().split('T')[0];
+  document.getElementById('next-day-wrap').style.display = 'none';
+  await loadTasks(nextStr);
+  document.getElementById('painel-date').textContent = formatDate(nextDate) + ' (adiantando)';
 }
 
 // ── REALTIME ───────────────────────────────────────────────
 function subscribeRealtime() {
-  supabaseClient.channel('task_states_rt')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'task_states' }, payload => {
-      if (!payload.new || payload.new.data !== TODAY) return;
-      const { task_id, done } = payload.new;
-      if (taskStates[task_id] === done) return;
-      taskStates[task_id] = done;
-      const card = document.getElementById(`task-${task_id}`);
-      if (card) { card.classList.toggle('done', done); card.querySelector('.task-check').classList.toggle('on', done); }
-      const task = allTasks.find(t => t.id === task_id);
-      if (task) updatePersonCount(task.responsavel);
-      updateStats();
-    }).subscribe();
+  sb.channel('lb_states').on('postgres_changes', { event:'*', schema:'public', table:'task_states' }, payload => {
+    if (!payload.new || payload.new.data !== viewingDate) return;
+    const { task_id, done } = payload.new;
+    if (taskStates[task_id] === done) return;
+    taskStates[task_id] = done;
+    renderTasksForTab(currentTab);
+    renderStats();
+  }).subscribe();
 }
 
-// ── STATS ──────────────────────────────────────────────────
-function updateStats() {
-  const total = allTasks.length;
-  const done = allTasks.filter(t => taskStates[t.id]).length;
-  document.getElementById('total-tasks').textContent = total;
-  document.getElementById('done-tasks').textContent = done;
-  document.getElementById('open-tasks').textContent = total - done;
+// ── PAGES ──────────────────────────────────────────────────
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  el.classList.add('active');
+  if (page === 'calendario') renderCalendar();
 }
 
-function updatePersonCount(who) {
-  const tasks = allTasks.filter(t => t.responsavel === who);
-  const done = tasks.filter(t => taskStates[t.id]).length;
-  const total = tasks.length;
-  document.getElementById(`${who}-done`).textContent = done;
-  document.getElementById(`${who}-total`).textContent = total;
-  document.getElementById(`${who}-progress`).style.width = (total ? Math.round(done/total*100) : 0) + '%';
+// ── CALENDAR ───────────────────────────────────────────────
+async function renderCalendar() {
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('cal-month-title').textContent = `${months[calMonth]} ${calYear}`;
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+  // Buscar tarefas do mês
+  const startDate = `${calYear}-${String(calMonth+1).padStart(2,'0')}-01`;
+  const endDate = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(daysInMonth).padStart(2,'0')}`;
+  let query = sb.from('tarefas').select('id,data,prioridade').gte('data', startDate).lte('data', endDate);
+  if (currentUser.papel === 'prestador') query = query.eq('responsavel', currentUser.responsavel_id);
+  const { data: monthTasks } = await query;
+
+  const ids = (monthTasks||[]).map(t=>t.id);
+  let doneIds = new Set();
+  if (ids.length) {
+    const { data: monthStates } = await sb.from('task_states').select('task_id,done').in('task_id', ids);
+    doneIds = new Set((monthStates||[]).filter(s=>s.done).map(s=>s.task_id));
+  }
+
+  const tasksByDate = {};
+  (monthTasks||[]).forEach(t => {
+    if (!tasksByDate[t.data]) tasksByDate[t.data] = { pending:0, done:0 };
+    if (doneIds.has(t.id)) tasksByDate[t.data].done++;
+    else tasksByDate[t.data].pending++;
+  });
+
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  let html = days.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+  // Dias do mês anterior
+  for (let i = firstDay-1; i >= 0; i--) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${daysInPrev-i}</div></div>`;
+  }
+
+  // Dias do mês atual
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === TODAY;
+    const isSelected = dateStr === viewingDate;
+    const info = tasksByDate[dateStr] || { pending:0, done:0 };
+    const dots = [
+      info.pending > 0 ? `<div class="cal-dot cal-dot-pending"></div>` : '',
+      info.done > 0 ? `<div class="cal-dot cal-dot-done"></div>` : ''
+    ].join('');
+
+    html += `<div class="cal-day ${isToday?'today':''} ${isSelected?'selected':''}" onclick="abrirDia('${dateStr}')">
+      <div class="cal-day-num">${d}</div>
+      <div class="cal-tasks-dots">${dots}</div>
+    </div>`;
+  }
+
+  // Completar grid
+  const totalCells = firstDay + daysInMonth;
+  const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let d = 1; d <= remaining; d++) {
+    html += `<div class="cal-day other-month"><div class="cal-dot-num">${d}</div></div>`;
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
 }
 
-// ── TABS ───────────────────────────────────────────────────
-function switchTab(id, el) {
-  document.querySelectorAll('.pnl').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.getElementById(`pnl-${id}`).classList.add('on');
-  el.classList.add('on');
+function navMes(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
 }
 
-// ── REPORT ─────────────────────────────────────────────────
-function openReport() {
-  const done = allTasks.filter(t => taskStates[t.id]).map(t => `✅ ${t.titulo} [${t.cliente} · ${t.tipo}]`).join('\n');
-  const open = allTasks.filter(t => !taskStates[t.id]).map(t => `⏳ ${t.titulo} [${t.cliente} · ${t.tipo}]`).join('\n');
-  const text = `📋 RELATÓRIO ${TODAY}\n\n✅ CONCLUÍDO:\n${done||'Nenhuma'}\n\n⏳ PENDENTE:\n${open||'Tudo concluído!'}`;
-  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => alert('✅ Copiado! Cole no grupo da Labareda.'));
-  else { const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); alert('✅ Copiado!'); }
+async function abrirDia(dateStr) {
+  const modal = document.getElementById('cal-modal');
+  const title = document.getElementById('cal-modal-title');
+  const content = document.getElementById('cal-modal-content');
+
+  title.textContent = formatDate(new Date(dateStr+'T12:00:00'));
+  content.innerHTML = '<div class="empty-state"><div class="empty-text">Carregando...</div></div>';
+  modal.classList.add('open');
+
+  let query = sb.from('tarefas').select('*').eq('data', dateStr).order('prioridade_ordem').order('ordem');
+  if (currentUser.papel === 'prestador') query = query.eq('responsavel', currentUser.responsavel_id);
+  const { data: dayTasks } = await query;
+
+  if (!dayTasks?.length) { content.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Sem tarefas neste dia.</div></div>'; return; }
+
+  const ids = dayTasks.map(t=>t.id);
+  const { data: dayStates } = await sb.from('task_states').select('*').in('task_id', ids);
+  const dayDone = new Set((dayStates||[]).filter(s=>s.done).map(s=>s.task_id));
+
+  const done = dayTasks.filter(t=>dayDone.has(t.id));
+  const pending = dayTasks.filter(t=>!dayDone.has(t.id));
+
+  let html = '';
+  if (pending.length) {
+    html += `<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">⏳ Pendentes (${pending.length})</div>`;
+    html += pending.map(t=>`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:500">${t.titulo}</div>
+      <div style="display:flex;gap:6px;margin-top:5px">
+        <span class="badge badge-client">${t.cliente}</span>
+        <span class="badge badge-type">${t.tipo}</span>
+        <span class="badge badge-${t.prioridade}">${t.prioridade}</span>
+      </div>
+    </div>`).join('') + '</div>';
+  }
+  if (done.length) {
+    html += `<div><div style="font-size:12px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">✅ Concluídas (${done.length})</div>`;
+    html += done.map(t=>`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;opacity:.6">
+      <div style="font-size:13px;font-weight:500;text-decoration:line-through">${t.titulo}</div>
+      <div style="display:flex;gap:6px;margin-top:5px">
+        <span class="badge badge-client">${t.cliente}</span>
+        <span class="badge badge-type">${t.tipo}</span>
+      </div>
+    </div>`).join('') + '</div>';
+  }
+
+  content.innerHTML = html;
 }
 
-// ── CONFIG DO DIA (atualizar todo dia) ─────────────────────
+function fecharModal() { document.getElementById('cal-modal').classList.remove('open'); }
+document.getElementById('cal-modal').addEventListener('click', e => { if(e.target===e.currentTarget) fecharModal(); });
+
+// ── UTILS ──────────────────────────────────────────────────
+function formatDate(date) {
+  const days = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return `${days[date.getDay()]}, ${date.getDate()} De ${months[date.getMonth()]}`;
+}
+
+// ── ALERTS CONFIG ──────────────────────────────────────────
 window.LABAREDA_ALERTS = [
-  { type: 'red', text: 'Cobranças vencem HOJE — Ricardinho R$500 · Pluma R$500 · Thaís R$450 · Magnolia R$900' },
-  { type: 'amber', text: 'Pluma ainda não pagou — cobrar com prazo claro' },
-  { type: 'green', text: 'William Novaes JÁ assinou contrato Marcos ✅' }
+  { type:'warn', text:'⚠️ Cobranças do dia 10 — verificar pagamentos pendentes' },
+  { type:'blue', text:'📋 Semana de organização — foco em destaques e posts fixos' }
 ];
 
-window.LABAREDA_TIMELINE = [
-  { time: '08h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Kethly na musculação até 09h', off: false, hot: false },
-  { time: '09h', dot: 'd-free', name: 'Janela produtiva — ambos', sub: 'Até 12h · foco máximo', off: false, hot: false },
-  { time: '12h', dot: 'd-block', name: 'Almoço', sub: 'Até 13h · indisponível', off: true, hot: false },
-  { time: '13h', dot: 'd-free', name: 'Janela produtiva — ambos', sub: 'Até 15h', off: false, hot: false },
-  { time: '15h', dot: 'd-hot', name: 'Compromisso externo', sub: 'Até 17h · indisponível', off: true, hot: true },
-  { time: '17h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Kethly encerra às 18h', off: false, hot: false },
-  { time: '18h', dot: 'd-orange', name: 'Descanso — Edivaldo', sub: 'Até 19h · Kethly encerra o dia', off: true, hot: false },
-  { time: '19h', dot: 'd-free', name: 'Janela produtiva — Edivaldo', sub: 'Até 22h', off: false, hot: false }
-];
+// ── RELATÓRIO INTELIGENTE ──────────────────────────────────
+async function gerarRelatorio() {
+  const modal = document.getElementById('report-modal');
+  const content = document.getElementById('report-content');
+  content.innerHTML = '<div class="empty-state"><div class="empty-text">Gerando relatório...</div></div>';
+  modal.classList.add('open');
+
+  // Tarefas do dia atual
+  const done = allTasks.filter(t => taskStates[t.id]);
+  const pending = allTasks.filter(t => !taskStates[t.id]);
+
+  // Buscar pendentes de dias anteriores
+  let query = sb.from('tarefas').select('*').lt('data', viewingDate);
+  if (currentUser.papel === 'prestador') query = query.eq('responsavel', currentUser.responsavel_id);
+  const { data: oldTasks } = await query;
+
+  let latePending = [];
+  if (oldTasks?.length) {
+    const ids = oldTasks.map(t=>t.id);
+    const { data: oldStates } = await sb.from('task_states').select('*').in('task_id', ids);
+    const doneIds = new Set((oldStates||[]).filter(s=>s.done).map(s=>s.task_id));
+    latePending = oldTasks.filter(t => !doneIds.has(t.id));
+  }
+
+  const dataFormatada = new Date(viewingDate+'T12:00:00').toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' });
+  const totalTasks = allTasks.length;
+  const pct = totalTasks ? Math.round(done.length/totalTasks*100) : 0;
+
+  // Agrupar por responsável
+  const byResp = {};
+  [...done, ...pending].forEach(t => {
+    if (!byResp[t.responsavel]) byResp[t.responsavel] = { done:[], pending:[] };
+    if (taskStates[t.id]) byResp[t.responsavel].done.push(t);
+    else byResp[t.responsavel].pending.push(t);
+  });
+
+  let html = `
+    <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:4px">${dataFormatada}</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:24px;font-weight:700;color:var(--orange)">${pct}%</div>
+        <div>
+          <div style="font-size:13px;font-weight:500">${done.length} de ${totalTasks} tarefas concluídas</div>
+          ${latePending.length ? `<div style="font-size:12px;color:var(--red);margin-top:2px">⚠️ ${latePending.length} pendências de dias anteriores</div>` : ''}
+        </div>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden">
+        <div style="height:100%;background:var(--green);width:${pct}%;border-radius:2px"></div>
+      </div>
+    </div>`;
+
+  if (done.length) {
+    html += `<div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">✅ CONCLUÍDAS (${done.length})</div>`;
+    done.forEach(t => {
+      html += `<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;opacity:.7">
+        <div style="font-size:13px;font-weight:500;text-decoration:line-through">${t.titulo}</div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <span class="badge badge-client">${t.cliente}</span>
+          <span class="badge badge-type">${t.tipo}</span>
+          <span class="badge badge-time">${RESPONSAVEL_LABELS[t.responsavel]||t.responsavel}</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (pending.length) {
+    html += `<div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">⏳ PENDENTES HOJE (${pending.length}) — vira prioridade máxima amanhã</div>`;
+    pending.forEach(t => {
+      html += `<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;border-left:2px solid var(--amber)">
+        <div style="font-size:13px;font-weight:500">${t.titulo}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">${t.descricao||''}</div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <span class="badge badge-client">${t.cliente}</span>
+          <span class="badge badge-type">${t.tipo}</span>
+          <span class="badge badge-alta">Alta amanhã</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (latePending.length) {
+    html += `<div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">🚨 ACUMULADAS DE DIAS ANTERIORES (${latePending.length})</div>`;
+    latePending.forEach(t => {
+      html += `<div style="background:rgba(226,75,74,0.08);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;border-left:2px solid var(--red)">
+        <div style="font-size:13px;font-weight:500">${t.titulo}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">De ${t.data}</div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <span class="badge badge-client">${t.cliente}</span>
+          <span class="badge badge-type">${t.tipo}</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  content.innerHTML = html;
+
+  // Salvar texto para copiar
+  window._reportText = gerarTextoRelatorio(done, pending, latePending, dataFormatada);
+  window._reportAgente = gerarTextoAgente(done, pending, latePending, dataFormatada);
+}
+
+function gerarTextoRelatorio(done, pending, latePending, data) {
+  let txt = `📋 RELATÓRIO DO DIA — ${data}\n`;
+  txt += `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  if (done.length) {
+    txt += `✅ CONCLUÍDAS (${done.length}):\n`;
+    done.forEach(t => { txt += `• ${t.titulo} [${t.cliente} · ${t.tipo}] — ${RESPONSAVEL_LABELS[t.responsavel]||t.responsavel}\n`; });
+    txt += '\n';
+  }
+
+  if (pending.length) {
+    txt += `⏳ PENDENTES (${pending.length}) — prioridade máxima amanhã:\n`;
+    pending.forEach(t => { txt += `• ${t.titulo} [${t.cliente} · ${t.tipo}] — ${RESPONSAVEL_LABELS[t.responsavel]||t.responsavel}\n`; });
+    txt += '\n';
+  }
+
+  if (latePending.length) {
+    txt += `🚨 ACUMULADAS DE DIAS ANTERIORES (${latePending.length}):\n`;
+    latePending.forEach(t => { txt += `• ${t.titulo} [${t.cliente}] — de ${t.data}\n`; });
+    txt += '\n';
+  }
+
+  txt += `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  txt += `Total: ${done.length + pending.length} tarefas | ${done.length} concluídas | ${pending.length} pendentes`;
+  return txt;
+}
+
+function gerarTextoAgente(done, pending, latePending, data) {
+  let txt = `Relatório do dia ${data}:\n\n`;
+
+  if (done.length) {
+    txt += `FOI FEITO:\n`;
+    done.forEach(t => { txt += `- ${t.titulo} (${t.cliente} · ${t.tipo}) ✅\n`; });
+    txt += '\n';
+  }
+
+  if (pending.length) {
+    txt += `NÃO FOI CONCLUÍDO (incluir como prioridade ALTA no plano de amanhã):\n`;
+    pending.forEach(t => { txt += `- ${t.titulo} (${t.cliente} · ${t.tipo} · ${RESPONSAVEL_LABELS[t.responsavel]||t.responsavel})\n`; });
+    txt += '\n';
+  }
+
+  if (latePending.length) {
+    txt += `ACUMULADO DE DIAS ANTERIORES (também incluir como prioridade ALTA):\n`;
+    latePending.forEach(t => { txt += `- ${t.titulo} (${t.cliente}) — de ${t.data}\n`; });
+    txt += '\n';
+  }
+
+  txt += `Por favor, organize as tarefas de amanhã priorizando as pendentes e acumuladas como ALTA prioridade, depois as novas tarefas do dia.`;
+  return txt;
+}
+
+function copiarRelatorio() {
+  if (navigator.clipboard) navigator.clipboard.writeText(window._reportText).then(() => alert('✅ Relatório copiado!'));
+  else { fallbackCopy(window._reportText); alert('✅ Relatório copiado!'); }
+}
+
+function enviarParaAgente() {
+  if (navigator.clipboard) navigator.clipboard.writeText(window._reportAgente).then(() => alert('✅ Texto copiado! Cole aqui no agente (Claude).'));
+  else { fallbackCopy(window._reportAgente); alert('✅ Texto copiado! Cole aqui no agente (Claude).'); }
+}
+
+function fallbackCopy(text) {
+  const el = document.createElement('textarea');
+  el.value = text; document.body.appendChild(el); el.select();
+  document.execCommand('copy'); document.body.removeChild(el);
+}
+
+function fecharRelatorio() { document.getElementById('report-modal').classList.remove('open'); }
+document.getElementById('report-modal').addEventListener('click', e => { if(e.target===e.currentTarget) fecharRelatorio(); });
+
 </script>
 </body>
 </html>
+
+<!-- RELATÓRIO MODAL -->
+<div class="modal-overlay" id="report-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <div class="modal-title">📋 Relatório do Dia</div>
+      <button class="modal-close" onclick="fecharRelatorio()">✕</button>
+    </div>
+    <div id="report-content"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button onclick="copiarRelatorio()" style="flex:1;padding:11px;background:rgba(55,138,221,0.15);border:1px solid var(--blue);border-radius:var(--radius-sm);color:#70b3f0;font-size:13px;font-weight:600;cursor:pointer">📋 Copiar texto</button>
+      <button onclick="enviarParaAgente()" style="flex:1;padding:11px;background:rgba(255,92,0,0.15);border:1px solid var(--orange);border-radius:var(--radius-sm);color:var(--orange);font-size:13px;font-weight:600;cursor:pointer">🤖 Copiar para o Agente</button>
+      <button onclick="fecharRelatorio()" style="flex:1;padding:11px;background:rgba(29,158,117,0.15);border:1px solid var(--green);border-radius:var(--radius-sm);color:#5dd4a5;font-size:13px;font-weight:600;cursor:pointer">✅ Fechar</button>
+    </div>
+  </div>
+</div>
