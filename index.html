@@ -240,7 +240,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 
     <!-- EQUIPE -->
     <div class="page admin-only" id="page-equipe">
-      <div class="page-header"><div><div class="page-title">Equipe</div><div class="page-date">Visão por responsável</div></div></div>
+      <div class="page-header"><div><div class="page-title">Equipe</div><div class="page-date" id="equipe-date">Tarefas de hoje por membro</div></div></div>
       <div id="equipe-wrap"></div>
     </div>
   </div>
@@ -281,14 +281,14 @@ let currentTab = 'geral';
 let viewingDate = '';
 let calYear, calMonth;
 
-const RESP_LABELS = {ed:'Edivaldo', kt:'Kethly', danilo:'Danilo', micheline:'Micheline'};
+const RESP_LABELS = {ed:'Edivaldo Ferreira', kt:'Kethly Suely', danilo:'Danilo', micheline:'Micheline'};
 const CLIENTS_CONFIG = [
-  {nome:'Magnolia', cor:'#E24B4A', status:'Identidade visual + direcionamento criativo'},
-  {nome:'Marcos', cor:'#EF9F27', status:'Reel 002 — Quer emagrecer mais rápido?'},
-  {nome:'Pluma', cor:'#E24B4A', status:'Reel 001 — Abri a caixa e...'},
-  {nome:'Ricardinho', cor:'#EF9F27', status:'Design + vídeos simples de produto'},
-  {nome:'Thaís', cor:'#1D9E75', status:'Finalizado'},
-  {nome:'Aline', cor:'#EF9F27', status:'Entrega pendente do mês'}
+  {nome:'Magnólia Sousa', cor:'#E24B4A', status:'Carrosseis aguardando aprovação', etapa:'E9 – Aprovações'},
+  {nome:'Marcos Adriano', cor:'#EF9F27', status:'Material enviado · aguardando resposta', etapa:'E9 – Aprovações'},
+  {nome:'Pluma Baby', cor:'#E24B4A', status:'Pagamento ATRASADO · cobrança urgente', etapa:'E8 – Criação'},
+  {nome:'Ricardinho Lanches', cor:'#EF9F27', status:'Estáticos abril em produção', etapa:'E8 – Criação'},
+  {nome:'Thaís Andrade', cor:'#1D9E75', status:'OK · destaques pendentes', etapa:'E6 – Criação Interna'},
+  {nome:'Clinica Afetiva', cor:'#378ADD', status:'Encerrado · entregando material restante', etapa:'E9 – Aprovações'}
 ];
 
 // ── FUSO BRASÍLIA GMT-3 ─────────────────────────────────────
@@ -628,14 +628,25 @@ function renderAlerts() {
 // ── CLIENTS ────────────────────────────────────────────────
 function renderClients() {
   if (currentUser?.papel!=='admin') return;
-  document.getElementById('clients-list').innerHTML = CLIENTS_CONFIG.map(c=>`
-    <div class="client-item">
+  document.getElementById('clients-list').innerHTML = CLIENTS_CONFIG.map((c,i)=>`
+    <div class="client-item" onclick="editarStatusCliente(${i})" style="cursor:pointer">
       <div class="client-dot" style="background:${c.cor}"></div>
       <div class="client-info">
         <div class="client-name">${c.nome}</div>
         <div class="client-status">${c.status}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${c.etapa||''}</div>
       </div>
+      <div style="color:var(--text3);font-size:14px">›</div>
     </div>`).join('');
+}
+
+function editarStatusCliente(idx) {
+  const c = CLIENTS_CONFIG[idx];
+  const novoStatus = prompt(`Status de "${c.nome}":`, c.status);
+  if (novoStatus !== null && novoStatus.trim()) {
+    CLIENTS_CONFIG[idx].status = novoStatus.trim();
+    renderClients();
+  }
 }
 
 // ── TOGGLE ─────────────────────────────────────────────────
@@ -704,6 +715,68 @@ function showPage(page, el) {
   document.getElementById(`page-${page}`).classList.add('active');
   el.classList.add('active');
   if (page==='calendario') renderCalendar();
+  if (page==='equipe') renderEquipe();
+}
+
+async function renderEquipe() {
+  const today = getTodayBrasilia();
+  document.getElementById('equipe-date').textContent = `Tarefas de hoje — ${formatDateBR(today)}`;
+  const wrap = document.getElementById('equipe-wrap');
+  wrap.innerHTML = '<div class="empty-state"><div>Carregando...</div></div>';
+
+  const membros = [
+    {id:'ed', nome:'Edivaldo Ferreira', papel:'Produção · Estratégia · Design'},
+    {id:'kt', nome:'Kethly Suely', papel:'Relacionamento · Atendimento · Organização'},
+    {id:'danilo', nome:'Danilo Souza', papel:'Editor de Vídeo · Vídeos Marcos Adriano'},
+    {id:'micheline', nome:'Micheline Oliveira', papel:'Editora de Vídeo · Magnólia e Thaís'}
+  ];
+
+  const {data: equipeTasks} = await sb.from('tarefas').select('*').eq('data', today).order('prioridade_ordem').order('ordem');
+  const {data: equipeStates} = await sb.from('task_states').select('*').eq('data', today);
+  const stateMap = {};
+  (equipeStates||[]).forEach(s=>{ stateMap[s.task_id]=s.done; });
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">';
+
+  membros.forEach(m => {
+    const mTasks = (equipeTasks||[]).filter(t=>t.responsavel===m.id);
+    const mDone = mTasks.filter(t=>stateMap[t.id]).length;
+    const mOpen = mTasks.filter(t=>!stateMap[t.id]).length;
+    const pct = mTasks.length ? Math.round(mDone/mTasks.length*100) : 0;
+
+    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,92,0,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--orange)">${m.nome.charAt(0)}</div>
+        <div>
+          <div style="font-size:14px;font-weight:600">${m.nome}</div>
+          <div style="font-size:11px;color:var(--text2)">${m.papel}</div>
+        </div>
+        <div style="margin-left:auto;font-size:20px;font-weight:700;color:${pct===100?'var(--green)':'var(--orange)'}">${pct}%</div>
+      </div>
+      <div style="height:3px;background:var(--border);border-radius:2px;margin-bottom:12px;overflow:hidden">
+        <div style="height:100%;background:${pct===100?'var(--green)':'var(--orange)'};width:${pct}%;border-radius:2px"></div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">${mDone} de ${mTasks.length} tarefas · ${mOpen} em aberto</div>`;
+
+    if (mTasks.length) {
+      mTasks.filter(t=>!stateMap[t.id]).slice(0,5).forEach(t=>{
+        html+=`<div style="background:var(--bg3);border-radius:6px;padding:8px 10px;margin-bottom:5px;border-left:2px solid ${t.prioridade==='alta'?'var(--red)':t.prioridade==='media'?'var(--amber)':'var(--green)'}">
+          <div style="font-size:12px;font-weight:500">${t.titulo}</div>
+          <div style="display:flex;gap:4px;margin-top:3px">
+            <span class="badge badge-client" style="font-size:9px">${t.cliente}</span>
+            <span class="badge badge-${t.prioridade}" style="font-size:9px">${t.prioridade}</span>
+          </div>
+        </div>`;
+      });
+      if (mOpen > 5) html+=`<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:4px">+${mOpen-5} mais...</div>`;
+    } else {
+      html+='<div style="font-size:12px;color:var(--text3);text-align:center;padding:10px">Sem tarefas hoje</div>';
+    }
+    html += '</div>';
+  });
+
+  html += '</div>';
+  wrap.innerHTML = html;
 }
 
 // ── CALENDÁRIO ─────────────────────────────────────────────
@@ -922,12 +995,35 @@ function fecharModal(id) { document.getElementById(id).classList.remove('open');
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click', e=>{if(e.target===e.currentTarget)m.classList.remove('open');}));
 
 // ── ALERTS CONFIG ──────────────────────────────────────────
-window.LABAREDA_ALERTS = [
-  {type:'blue', text:'📅 Sábado 11/04 · Foco: organização e planejamento da semana'}
-];
+// Alertas automáticos por dia da semana (Brasília)
+function getAlertasDoDia() {
+  const br = getBrasiliaDate();
+  const dow = br.getDay(); // 0=Dom,1=Seg,2=Ter,3=Qua,4=Qui,5=Sex,6=Sáb
+  const alertas = [];
+
+  // Alerta de Pluma Baby atrasado (até pagar)
+  alertas.push({type:'red', text:'🚨 Pluma Baby — pagamento ATRASADO desde dia 10 · cobrar hoje com prazo final'});
+
+  // Alertas por dia da semana
+  const porDia = {
+    1: [{type:'blue', text:'📋 Segunda · Organizar semana · Follow-ups prioritários · Alinhar pendências'}],
+    2: [{type:'blue', text:'📋 Terça · Briefing e estratégia · Definir linha editorial maio'}],
+    3: [{type:'blue', text:'📋 Quarta · Criação de conteúdo · Produção e design'}],
+    4: [{type:'blue', text:'📋 Quinta · Gravação e execução · Captação de vídeos'}],
+    5: [{type:'blue', text:'📋 Sexta · Aprovações e agendamento · Enviar para clientes'}],
+    6: [{type:'green', text:'📋 Sábado · Organização e planejamento · Kethly: tarefas leves'}],
+    0: []
+  };
+
+  return [...alertas, ...(porDia[dow]||[])];
+}
+window.LABAREDA_ALERTS = getAlertasDoDia();
 
 // Renderizar alerts após DOM estar pronto
-setTimeout(renderAlerts, 100);
+setTimeout(() => {
+  window.LABAREDA_ALERTS = getAlertasDoDia();
+  renderAlerts();
+}, 100);
 </script>
 </body>
 </html>
