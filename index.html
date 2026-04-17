@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Labareda Ops v2</title>
+<title>Labareda Ops</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>window._sbReady = false;</script>
 <style>
-:root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#222;--bg4:#2a2a2a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#999;--text3:#666;--orange:#FF5C00;--red:#E24B4A;--amber:#EF9F27;--green:#1D9E75;--blue:#378ADD;--radius:10px;--radius-sm:6px}
+:root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#222;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#999;--text3:#666;--orange:#FF5C00;--red:#E24B4A;--amber:#EF9F27;--green:#1D9E75;--blue:#378ADD;--radius:10px;--radius-sm:6px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
-/* LOGIN */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:400px;width:100%}
 .login-logo{font-size:24px;font-weight:700;color:var(--orange);margin-bottom:4px}
@@ -19,9 +17,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .field label{font-size:12px;color:var(--text2);display:block;margin-bottom:6px}
 .field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:11px 13px;color:var(--text);font-size:14px;outline:none;transition:border .15s}
 .field input:focus{border-color:var(--orange)}
-.login-btn{width:100%;padding:12px;background:var(--orange);border:none;border-radius:var(--radius-sm);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+.login-btn{width:100%;padding:12px;background:var(--orange);border:none;border-radius:var(--radius-sm);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .15s}
 .login-btn:hover{background:#e05200}
-.login-err{color:var(--red);font-size:12px;margin-top:10px;display:none;text-align:center}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;display:none;text-align:center;padding:8px;background:rgba(226,75,74,0.1);border-radius:var(--radius-sm)}
 /* LAYOUT */
 .app{display:none;min-height:100vh;flex-direction:row}
 .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:50}
@@ -43,21 +41,32 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
 .page-title{font-size:22px;font-weight:600}
 .page-date{font-size:13px;color:var(--text2);margin-top:3px}
-.online-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+/* ONLINE BADGE */
+.online-badge{position:relative;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;transition:all .15s;user-select:none}
+.online-badge:hover{border-color:var(--green);background:var(--bg3)}
 .online-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.online-popup{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;min-width:220px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none}
+.online-popup.open{display:block}
+.online-popup-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.online-user-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.online-user-item:last-child{border-bottom:none}
+.online-user-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.online-user-name{font-size:13px;font-weight:500}
+.online-user-time{font-size:11px;color:var(--text3);margin-left:auto}
+.online-empty{font-size:13px;color:var(--text3);text-align:center;padding:8px 0}
+/* FRASE */
+.frase-card{background:linear-gradient(135deg,rgba(255,92,0,0.08),rgba(255,92,0,0.02));border:1px solid rgba(255,92,0,0.2);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;position:relative;overflow:hidden}
+.frase-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--orange)}
+.frase-icon{font-size:14px;margin-bottom:6px;opacity:.6}
+.frase-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.6;font-style:italic}
+.frase-author{font-size:11px;color:var(--text3);margin-top:6px}
 /* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
 .stat-n{font-size:28px;font-weight:700;margin-bottom:4px}
 .stat-n.orange{color:var(--orange)}.stat-n.green{color:var(--green)}.stat-n.amber{color:var(--amber)}.stat-n.red{color:var(--red)}
 .stat-l{font-size:12px;color:var(--text2)}
-/* ALERTS */
-.alert-box{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.alert-warn{background:rgba(239,159,39,0.1);color:#ffc066;border:1px solid rgba(239,159,39,0.25)}
-.alert-red{background:rgba(226,75,74,0.1);color:#ff8080;border:1px solid rgba(226,75,74,0.25)}
-.alert-green{background:rgba(29,158,117,0.1);color:#5dd4a5;border:1px solid rgba(29,158,117,0.25)}
-.alert-blue{background:rgba(55,138,221,0.1);color:#70b3f0;border:1px solid rgba(55,138,221,0.25)}
 /* TABS */
 .tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
 .tab-btn{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--text2);background:transparent;transition:all .15s}
@@ -78,7 +87,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .task-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:all .18s;user-select:none}
 .task-card:hover{border-color:var(--border2)}
 .task-card.pending-carry{border-left:3px solid var(--red);background:rgba(226,75,74,0.04)}
-.task-card.done{opacity:.25;pointer-events:none}
+.task-card.done{opacity:.2;pointer-events:none}
 .task-card.done .task-title{text-decoration:line-through}
 .task-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s}
 .task-check.on{background:var(--green);border-color:var(--green);color:#fff}
@@ -99,22 +108,29 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .progress-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
 .progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
 .progress-text{font-size:13px;color:var(--text2);white-space:nowrap}
-/* NEXT DAY */
+/* NEXT DAY / REPORT */
 .next-day-wrap{text-align:center;padding:30px;display:none}
 .next-day-btn{padding:14px 28px;background:rgba(29,158,117,0.15);border:1px solid var(--green);border-radius:var(--radius);color:var(--green);font-size:15px;font-weight:600;cursor:pointer}
 .next-day-btn:hover{background:rgba(29,158,117,0.25)}
-/* REPORT BTN */
 .report-btn{width:100%;padding:13px;background:rgba(255,92,0,0.1);border:1px solid rgba(255,92,0,0.35);border-radius:var(--radius);color:var(--orange);font-size:14px;font-weight:600;cursor:pointer;margin-top:12px}
 .report-btn:hover{background:rgba(255,92,0,0.2)}
-/* CLIENT STATUS */
+/* CLIENTS */
 .clients-sidebar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
 .clients-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
-.client-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.client-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
 .client-item:last-child{border-bottom:none}
+.client-item:hover{opacity:.8}
 .client-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .client-info{flex:1;min-width:0}
 .client-name{font-size:14px;font-weight:500}
 .client-status{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.client-fase{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600;margin-top:3px;display:inline-block}
+.fase-F1{background:rgba(55,138,221,0.15);color:#70b3f0}
+.fase-F2{background:rgba(239,159,39,0.15);color:#ffc066}
+.fase-F3{background:rgba(255,92,0,0.15);color:#ff8c44}
+.fase-F4{background:rgba(127,119,221,0.15);color:#a8a3f0}
+.fase-F5{background:rgba(29,158,117,0.15);color:#5dd4a5}
+.fase-enc{background:rgba(255,255,255,0.06);color:var(--text3)}
 /* CALENDAR */
 .calendar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
@@ -139,55 +155,19 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .modal-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px}
 /* ADMIN LAYOUT */
 .admin-layout{display:grid;grid-template-columns:1fr 280px;gap:20px}
-/* REPORT MODAL */
 .report-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 .report-action-btn{flex:1;padding:11px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:1px solid}
 .btn-blue{background:rgba(55,138,221,0.15);border-color:var(--blue);color:#70b3f0}
 .btn-orange{background:rgba(255,92,0,0.15);border-color:var(--orange);color:var(--orange)}
 .btn-green{background:rgba(29,158,117,0.15);border-color:var(--green);color:#5dd4a5}
-/* EMPTY */
+/* EQUIPE */
+.equipe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.equipe-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.equipe-avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,92,0,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--orange);flex-shrink:0}
 .empty-state{text-align:center;padding:40px;color:var(--text3)}
 .empty-icon{font-size:36px;margin-bottom:10px}
-
-/* ONLINE POPUP */
-.online-badge{position:relative;cursor:pointer;transition:all .15s}
-.online-badge:hover{border-color:var(--green);background:var(--bg3)}
-.online-badge:active{transform:scale(.97)}
-.online-popup{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;min-width:220px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
-.online-popup.open{display:block}
-.online-popup-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-.online-user-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
-.online-user-item:last-child{border-bottom:none}
-.online-user-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
-.online-user-name{font-size:13px;font-weight:500}
-.online-user-time{font-size:11px;color:var(--text3);margin-left:auto}
-.online-empty{font-size:13px;color:var(--text3);text-align:center;padding:8px 0}
-
-/* FRASE MOTIVACIONAL */
-.frase-card{background:linear-gradient(135deg,rgba(255,92,0,0.08) 0%,rgba(255,92,0,0.03) 100%);border:1px solid rgba(255,92,0,0.2);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;position:relative;overflow:hidden}
-.frase-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--orange)}
-.frase-icon{font-size:16px;margin-bottom:6px;opacity:.7}
-.frase-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.6;font-style:italic}
-.frase-author{font-size:11px;color:var(--text3);margin-top:6px}
-
-/* CLIENT STATUS — visual por fase */
-.client-fase{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600;margin-top:3px;display:inline-block}
-.fase-f1{background:rgba(55,138,221,0.15);color:#70b3f0}
-.fase-f2{background:rgba(239,159,39,0.15);color:#ffc066}
-.fase-f3{background:rgba(255,92,0,0.15);color:#ff8c44}
-.fase-f4{background:rgba(127,119,221,0.15);color:#a8a3f0}
-.fase-f5{background:rgba(29,158,117,0.15);color:#5dd4a5}
-.fase-enc{background:rgba(255,255,255,0.06);color:var(--text3)}
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-@media(max-width:768px){
-  .sidebar{width:100%;height:auto;position:relative}
-  .main{margin-left:0}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .admin-layout{grid-template-columns:1fr}
-  .app{flex-direction:column}
-  #clients-sidebar-wrap{display:none}
-}
+@media(max-width:768px){.sidebar{width:100%;height:auto;position:relative}.main{margin-left:0}.stats-grid{grid-template-columns:repeat(2,1fr)}.admin-layout{grid-template-columns:1fr}.app{flex-direction:column}#clients-sidebar-wrap{display:none}}
 </style>
 </head>
 <body>
@@ -197,10 +177,10 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="login-box">
     <div class="login-logo">🔥 Labareda Ops</div>
     <div class="login-sub">Sistema operacional · Brasília GMT-3</div>
-    <div class="field"><label>Login</label><input id="inp-login" type="text" placeholder="Seu login" /></div>
-    <div class="field"><label>Senha</label><input id="inp-senha" type="password" placeholder="Sua senha" /></div>
-    <button class="login-btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
-    <div class="login-err" id="login-err">Login ou senha incorretos.</div>
+    <div class="field"><label>Login</label><input id="inp-login" type="text" placeholder="Seu login" autocomplete="username"/></div>
+    <div class="field"><label>Senha</label><input id="inp-senha" type="password" placeholder="Sua senha" autocomplete="current-password"/></div>
+    <button class="login-btn" id="login-btn">Entrar</button>
+    <div class="login-err" id="login-err"></div>
   </div>
 </div>
 
@@ -209,43 +189,44 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="sidebar">
     <div class="sidebar-logo"><span style="font-size:20px">🔥</span><div class="sidebar-logo-text">Labareda Ops</div></div>
     <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showPage('painel',this)"><span class="nav-icon">⚡</span>Painel</div>
-      <div class="nav-item" onclick="showPage('calendario',this)"><span class="nav-icon">📅</span>Calendário</div>
-      <div class="nav-item admin-only" onclick="showPage('equipe',this)"><span class="nav-icon">👥</span>Equipe</div>
+      <div class="nav-item active" id="nav-painel"><span class="nav-icon">⚡</span>Painel</div>
+      <div class="nav-item" id="nav-calendario"><span class="nav-icon">📅</span>Calendário</div>
+      <div class="nav-item admin-only" id="nav-equipe"><span class="nav-icon">👥</span>Equipe</div>
     </nav>
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-nome">-</div>
       <div class="user-role" id="sidebar-role">-</div>
-      <button class="logout-btn" onclick="fazerLogout()">Sair da conta</button>
+      <button class="logout-btn" id="logout-btn">Sair da conta</button>
     </div>
   </div>
-
   <div class="main">
     <!-- PAINEL -->
     <div class="page active" id="page-painel">
       <div class="page-header">
         <div><div class="page-title">Painel Geral</div><div class="page-date" id="painel-date">-</div></div>
-        <div class="online-badge" id="online-badge-btn" onclick="toggleOnlinePopup(event)" title="Ver quem está online">
-  <div class="online-dot"></div>
-  <span id="clock-display">--:--</span>
-  <span id="online-count" style="font-weight:600;color:var(--green)"></span>
-  <div class="online-popup" id="online-popup">
-    <div class="online-popup-title">🟢 Online agora</div>
-    <div id="online-popup-body"><div class="online-empty">Carregando...</div></div>
-  </div>
-</div>
+        <div class="online-badge" id="online-badge">
+          <div class="online-dot"></div>
+          <span id="clock-display">--:--</span>
+          <span id="online-count"></span>
+          <div class="online-popup" id="online-popup">
+            <div class="online-popup-title">🟢 Online agora</div>
+            <div id="online-popup-body"><div class="online-empty">Carregando...</div></div>
+          </div>
+        </div>
       </div>
-      <div class="frase-card" id="frase-card">
-  <div class="frase-icon">✦</div>
-  <div class="frase-text" id="frase-text">Carregando...</div>
-  <div class="frase-author" id="frase-author">— Labareda Ops</div>
-</div>
-<div id="alerts-wrap"></div>
+      <!-- FRASE MOTIVACIONAL -->
+      <div class="frase-card">
+        <div class="frase-icon">✦</div>
+        <div class="frase-text" id="frase-text">Carregando...</div>
+        <div class="frase-author" id="frase-author"></div>
+      </div>
+      <!-- ALERTAS -->
+      <div id="alerts-wrap"></div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-n orange" id="st-total">-</div><div class="stat-l">Total hoje</div></div>
         <div class="stat-card"><div class="stat-n green" id="st-done">0</div><div class="stat-l">Concluídas</div></div>
         <div class="stat-card"><div class="stat-n amber" id="st-open">-</div><div class="stat-l">Em aberto</div></div>
-        <div class="stat-card"><div class="stat-n red" id="st-carry">0</div><div class="stat-l">Pendentes carry</div></div>
+        <div class="stat-card"><div class="stat-n red" id="st-carry">0</div><div class="stat-l">Carry</div></div>
       </div>
       <div class="tabs" id="tabs-wrap"></div>
       <div class="admin-layout">
@@ -256,9 +237,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
           </div>
           <div id="tasks-wrap"><div class="empty-state"><div class="empty-icon">⏳</div><div>Carregando...</div></div></div>
           <div class="next-day-wrap" id="next-day-wrap">
-            <button class="next-day-btn" onclick="verProximoDia()">🎉 Todas concluídas! Ver tarefas de amanhã →</button>
+            <button class="next-day-btn" id="next-day-btn">🎉 Todas concluídas! Ver tarefas de amanhã →</button>
           </div>
-          <button class="report-btn" onclick="abrirRelatorio()">📋 Enviar relatório do dia</button>
+          <button class="report-btn" id="report-btn">📋 Enviar relatório do dia</button>
         </div>
         <div id="clients-sidebar-wrap" class="admin-only">
           <div class="clients-sidebar">
@@ -268,957 +249,650 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
         </div>
       </div>
     </div>
-
     <!-- CALENDÁRIO -->
     <div class="page" id="page-calendario">
       <div class="page-header"><div><div class="page-title">Calendário</div><div class="page-date">Clique em uma data para ver as tarefas</div></div></div>
       <div class="calendar-wrap">
         <div class="cal-header">
-          <button class="cal-nav-btn" onclick="navMes(-1)">← Anterior</button>
+          <button class="cal-nav-btn" id="cal-prev">← Anterior</button>
           <div class="cal-title" id="cal-title">-</div>
-          <button class="cal-nav-btn" onclick="navMes(1)">Próximo →</button>
+          <button class="cal-nav-btn" id="cal-next">Próximo →</button>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
       </div>
     </div>
-
     <!-- EQUIPE -->
     <div class="page admin-only" id="page-equipe">
-      <div class="page-header"><div><div class="page-title">Equipe</div><div class="page-date" id="equipe-date">Tarefas de hoje por membro</div></div></div>
-      <div id="equipe-wrap"></div>
+      <div class="page-header"><div><div class="page-title">Equipe</div><div class="page-date" id="equipe-date">Tarefas de hoje</div></div></div>
+      <div class="equipe-grid" id="equipe-wrap"></div>
     </div>
-  </div>
-</div>
-
-<!-- MODAL ONLINE USERS -->
-<div class="modal-overlay" id="online-modal" style="z-index:400">
-  <div class="modal" style="max-width:360px">
-    <div class="modal-header">
-      <div class="modal-title">🟢 Usuários Online</div>
-      <button class="modal-close" onclick="fecharModal('online-modal')">✕</button>
-    </div>
-    <div id="online-modal-body"></div>
   </div>
 </div>
 
 <!-- MODAL CALENDÁRIO -->
 <div class="modal-overlay" id="cal-modal">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title" id="cal-modal-title">-</div><button class="modal-close" onclick="fecharModal('cal-modal')">✕</button></div>
+    <div class="modal-header"><div class="modal-title" id="cal-modal-title">-</div><button class="modal-close" id="cal-modal-close">✕</button></div>
     <div id="cal-modal-body"></div>
   </div>
 </div>
-
 <!-- MODAL RELATÓRIO -->
 <div class="modal-overlay" id="report-modal">
   <div class="modal" style="max-width:700px">
-    <div class="modal-header"><div class="modal-title">📋 Relatório do Dia</div><button class="modal-close" onclick="fecharModal('report-modal')">✕</button></div>
+    <div class="modal-header"><div class="modal-title">📋 Relatório do Dia</div><button class="modal-close" id="report-modal-close">✕</button></div>
     <div id="report-body"></div>
     <div class="report-actions">
-      <button class="report-action-btn btn-blue" onclick="copiarRelatorio()">📋 Copiar relatório</button>
-      <button class="report-action-btn btn-orange" onclick="copiarParaAgente()">🤖 Copiar para o Agente</button>
-      <button class="report-action-btn btn-green" onclick="fecharModal('report-modal')">✅ Fechar</button>
+      <button class="report-action-btn btn-blue" id="copy-report-btn">📋 Copiar relatório</button>
+      <button class="report-action-btn btn-orange" id="copy-agent-btn">🤖 Copiar para o Agente</button>
+      <button class="report-action-btn btn-green" id="close-report-btn">✅ Fechar</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── CONFIGURAÇÃO ────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// CONFIGURAÇÃO
+// ══════════════════════════════════════════════════════
 const SB_URL = 'https://gdhnjgdnwbuntonapxgz.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkaG5qZ2Rud2J1bnRvbmFweGd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQ3MzgsImV4cCI6MjA5MTQwMDczOH0.QJWJlL9TnUDi79_InzA9rMZeMS0UAXD9DNiIOhsiko4';
 
 let sb = null;
 let currentUser = null;
-let allTasks = [];
-let carryTasks = []; // pendentes de dias anteriores
-let taskStates = {};
-let currentTab = 'geral';
-let viewingDate = '';
+let allTasks = [], carryTasks = [], taskStates = {};
+let currentTab = 'geral', viewingDate = '';
 let calYear, calMonth;
+let onlineChannel = null, onlineUsers = {};
+let _reportTxt = '', _reportAgente = '';
 
-const RESP_LABELS = {ed:'Edivaldo Ferreira', kt:'Kethly Suely', danilo:'Danilo', micheline:'Micheline'};
-const CLIENTS_CONFIG = [
-  {nome:'Magnólia Sousa', cor:'#E24B4A', status:'Conteúdo maio em criação · reunião realizada', fase:'F2', faseLabel:'F2 · Criação'},
-  {nome:'Marcos Adriano', cor:'#EF9F27', status:'Reels simples pendentes · reunião domingo 19/04', fase:'F2', faseLabel:'F2 · Criação'},
-  {nome:'Pluma Baby', cor:'#E24B4A', status:'Conteúdo maio aguardando aprovação do cliente', fase:'F3', faseLabel:'F3 · Aprovação'},
-  {nome:'Ricardinho Lanches', cor:'#1D9E75', status:'Conteúdo maio criado · designs em produção', fase:'F2', faseLabel:'F2 · Criação'},
-  {nome:'Thaís Andrade', cor:'#EF9F27', status:'Conteúdo maio enviado para aprovação', fase:'F3', faseLabel:'F3 · Aprovação'},
-  {nome:'Clinica Afetiva', cor:'#378ADD', status:'Encerrado · 14 designs em produção · entrega 24/04', fase:'enc', faseLabel:'Encerrado'}
+const RESP = {ed:'Edivaldo Ferreira',kt:'Kethly Suely',danilo:'Danilo Souza',micheline:'Micheline Oliveira'};
+const FRASES = [
+  {t:'"A ação cura o medo."',a:'— Dale Carnegie'},
+  {t:'"Faça o difícil enquanto ele ainda é fácil."',a:'— Dale Carnegie'},
+  {t:'"Um pequeno passo hoje vale mais do que uma grande intenção amanhã."',a:'— Labareda'},
+  {t:'"O sucesso nasce da constância."',a:'— Labareda'},
+  {t:'"Produtividade não é fazer tudo. É fazer o que importa."',a:'— Labareda'},
+  {t:'"Quem age com clareza avança com mais força."',a:'— Labareda'},
+  {t:'"Disciplina constrói resultados que a motivação sozinha não sustenta."',a:'— Labareda'},
+  {t:'"No digital, vence quem aparece, melhora e continua."',a:'— Labareda'},
+  {t:'"Comece com o que você tem. Mas comece."',a:'— Dale Carnegie'},
+  {t:'"O trabalho bem feito de hoje prepara o crescimento de amanhã."',a:'— Labareda'},
+  {t:'"Não espere. O momento certo nunca vai chegar."',a:'— Napoleon Hill'},
+  {t:'"Execução é o que separa quem sonha de quem conquista."',a:'— Labareda'},
+];
+const CLIENTS = [
+  {n:'Magnólia Sousa',c:'#E24B4A',s:'Conteúdo maio em criação · reunião realizada',f:'F2'},
+  {n:'Marcos Adriano',c:'#EF9F27',s:'Reels simples pendentes · reunião domingo 19/04',f:'F2'},
+  {n:'Pluma Baby',c:'#E24B4A',s:'Conteúdo maio aguardando aprovação',f:'F3'},
+  {n:'Ricardinho Lanches',c:'#1D9E75',s:'Designs maio em produção',f:'F2'},
+  {n:'Thaís Andrade',c:'#EF9F27',s:'Conteúdo maio enviado para aprovação',f:'F3'},
+  {n:'Clinica Afetiva',c:'#378ADD',s:'Encerrado · 14 designs em produção',f:'enc'},
 ];
 
-// ── FUSO BRASÍLIA GMT-3 ─────────────────────────────────────
-function getBrasiliaDate() {
-  const now = new Date();
-  // Brasília é UTC-3
-  const brasiliaOffset = -3 * 60;
-  const localOffset = now.getTimezoneOffset();
-  const diff = (brasiliaOffset - (-localOffset)) * 60 * 1000;
-  const brasilia = new Date(now.getTime() + diff - (localOffset * 60 * 1000));
-  // Correto: pegar UTC e subtrair 3h
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const br = new Date(utc + ((-3) * 3600000));
-  return br;
+// ══════════════════════════════════════════════════════
+// FUSO BRASÍLIA
+// ══════════════════════════════════════════════════════
+function getBR() {
+  const utc = Date.now() + new Date().getTimezoneOffset() * 60000;
+  return new Date(utc - 3 * 3600000);
+}
+function todayBR() {
+  const d = getBR();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function tomorrowBR() {
+  const d = getBR(); d.setDate(d.getDate()+1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  const dt = new Date(y,m-1,d);
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return dias[dt.getDay()]+', '+d+' de '+meses[m-1]+' de '+y;
 }
 
-function getTodayBrasilia() {
-  const br = getBrasiliaDate();
-  const y = br.getFullYear();
-  const m = String(br.getMonth()+1).padStart(2,'0');
-  const d = String(br.getDate()).padStart(2,'0');
-  return `${y}-${m}-${d}`;
-}
-
-function getYesterdayBrasilia() {
-  const br = getBrasiliaDate();
-  br.setDate(br.getDate()-1);
-  const y = br.getFullYear();
-  const m = String(br.getMonth()+1).padStart(2,'0');
-  const d = String(br.getDate()).padStart(2,'0');
-  return `${y}-${m}-${d}`;
-}
-
-function getTomorrowBrasilia() {
-  const br = getBrasiliaDate();
-  br.setDate(br.getDate()+1);
-  const y = br.getFullYear();
-  const m = String(br.getMonth()+1).padStart(2,'0');
-  const d = String(br.getDate()).padStart(2,'0');
-  return `${y}-${m}-${d}`;
-}
-
-function formatDateBR(dateStr) {
-  const [y,m,d] = dateStr.split('-');
-  const dt = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
-  const dias = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  return `${dias[dt.getDay()]}, ${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
-}
-
-// Relógio em tempo real
-function iniciarRelogio() {
-  function atualizar() {
-    const br = getBrasiliaDate();
-    const h = String(br.getHours()).padStart(2,'0');
-    const min = String(br.getMinutes()).padStart(2,'0');
-    document.getElementById('clock-display').textContent = `${h}:${min} (Brasília)`;
-  }
-  atualizar();
-  setInterval(atualizar, 30000);
-}
-
-// ── VERIFICAR VIRADA DE DIA ─────────────────────────────────
-let lastCheckedDate = '';
-
-async function verificarViradaDia() {
-  const today = getTodayBrasilia();
-  if (lastCheckedDate && lastCheckedDate !== today) {
-    // Dia virou! Processar pendentes do dia anterior
-    console.log('Dia virou:', lastCheckedDate, '->', today);
-    await processarPendentesVirada(lastCheckedDate);
-    viewingDate = today;
-    await loadTasks(today);
-  }
-  lastCheckedDate = today;
-}
-
-// A cada minuto verifica se o dia virou
-function iniciarVerificadorDia() {
-  setInterval(verificarViradaDia, 60000);
-}
-
-// Processar pendentes: tarefas não concluídas do dia anterior
-// Elas FICAM no dia original (para histórico no calendário)
-// Mas aparecem como "carry" no dia atual com prioridade máxima
-async function processarPendentesVirada(diaAnterior) {
-  // Não precisa fazer nada no banco — a lógica de carry é feita na leitura
-  console.log('Pendentes do dia', diaAnterior, 'serão carregadas como carry no novo dia');
-}
-
-// ── INIT ───────────────────────────────────────────────────
-function initSb() {
-  if (!sb && window.supabase && window.supabase.createClient) {
-    sb = window.supabase.createClient(SB_URL, SB_KEY);
-  }
-  return !!sb;
-}
-
-window.addEventListener('load', () => {
-  initSb();
+// ══════════════════════════════════════════════════════
+// INIT — aguardar supabase carregar
+// ══════════════════════════════════════════════════════
+window.addEventListener('load', function() {
+  sb = window.supabase.createClient(SB_URL, SB_KEY);
   iniciarRelogio();
+  renderFrase();
 
   const saved = localStorage.getItem('lb_user');
   if (saved) {
-    try {
-      currentUser = JSON.parse(saved);
-      entrarNoApp();
-    } catch(e) {
-      localStorage.removeItem('lb_user');
-    }
+    try { currentUser = JSON.parse(saved); entrarNoApp(); }
+    catch(e) { localStorage.removeItem('lb_user'); }
   }
 });
 
-// ── LOGIN ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// RELÓGIO
+// ══════════════════════════════════════════════════════
+function iniciarRelogio() {
+  function tick() {
+    const d = getBR();
+    const h = String(d.getHours()).padStart(2,'0');
+    const m = String(d.getMinutes()).padStart(2,'0');
+    const el = document.getElementById('clock-display');
+    if (el) el.textContent = h+':'+m+' (Brasília)';
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+
+// ══════════════════════════════════════════════════════
+// FRASE
+// ══════════════════════════════════════════════════════
+function renderFrase() {
+  const f = FRASES[Math.floor(Math.random()*FRASES.length)];
+  const te = document.getElementById('frase-text');
+  const au = document.getElementById('frase-author');
+  if (te) te.textContent = f.t;
+  if (au) au.textContent = f.a;
+}
+
+// ══════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════
+document.getElementById('login-btn').addEventListener('click', fazerLogin);
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const lw = document.getElementById('login-wrap');
+    if (lw && lw.style.display !== 'none') fazerLogin();
+  }
+});
+
 async function fazerLogin() {
   const login = document.getElementById('inp-login').value.trim();
   const senha = document.getElementById('inp-senha').value.trim();
   const btn = document.getElementById('login-btn');
   const err = document.getElementById('login-err');
-
-  if (!login || !senha) { err.style.display='block'; err.textContent='Preencha os campos.'; return; }
-
-  // Garantir que Supabase está inicializado
-  if (!initSb()) {
-    err.style.display='block'; err.textContent='Erro de conexão. Recarregue a página.'; return;
-  }
-
-  btn.textContent='Entrando...'; btn.disabled=true; err.style.display='none';
-
+  err.style.display = 'none';
+  if (!login || !senha) { err.textContent = 'Preencha os campos.'; err.style.display = 'block'; return; }
+  if (!sb) { err.textContent = 'Erro de conexão. Recarregue a página.'; err.style.display = 'block'; return; }
+  btn.textContent = 'Entrando...'; btn.disabled = true;
   try {
     const {data, error} = await sb.from('usuarios').select('*').eq('login',login).eq('senha_hash',senha).eq('ativo',true).single();
     if (error || !data) {
-      err.style.display='block'; err.textContent='Login ou senha incorretos.';
-      btn.textContent='Entrar'; btn.disabled=false; return;
+      err.textContent = 'Login ou senha incorretos.'; err.style.display = 'block';
+      btn.textContent = 'Entrar'; btn.disabled = false; return;
     }
     currentUser = data;
     localStorage.setItem('lb_user', JSON.stringify(data));
     entrarNoApp();
   } catch(e) {
-    err.style.display='block'; err.textContent='Erro de conexão: ' + e.message;
-    btn.textContent='Entrar'; btn.disabled=false;
+    err.textContent = 'Erro: ' + e.message; err.style.display = 'block';
+    btn.textContent = 'Entrar'; btn.disabled = false;
   }
 }
-
-document.addEventListener('keydown', e => {
-  if (e.key==='Enter' && document.getElementById('login-wrap').style.display!=='none') fazerLogin();
-});
 
 function fazerLogout() {
   localStorage.removeItem('lb_user');
   currentUser = null;
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-wrap').style.display='flex';
-  document.getElementById('inp-login').value='';
-  document.getElementById('inp-senha').value='';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('inp-login').value = '';
+  document.getElementById('inp-senha').value = '';
 }
+document.getElementById('logout-btn').addEventListener('click', fazerLogout);
 
-// ── ENTRAR NO APP ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// ENTRAR NO APP
+// ══════════════════════════════════════════════════════
 function entrarNoApp() {
-  document.getElementById('login-wrap').style.display='none';
-  document.getElementById('app').style.display='flex';
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
   document.getElementById('sidebar-nome').textContent = currentUser.nome;
-  document.getElementById('sidebar-role').textContent = currentUser.papel==='admin' ? 'Administrador' : 'Prestador';
-
+  document.getElementById('sidebar-role').textContent = currentUser.papel === 'admin' ? 'Administrador' : 'Prestador';
   if (currentUser.papel !== 'admin') {
-    document.querySelectorAll('.admin-only').forEach(el => el.style.display='none');
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
   }
-
-  const today = getTodayBrasilia();
-  lastCheckedDate = today;
+  const today = todayBR();
   calYear = parseInt(today.split('-')[0]);
   calMonth = parseInt(today.split('-')[1]) - 1;
-
   loadTasks(today);
   subscribeRealtime();
-  iniciarVerificadorDia();
   renderClients();
-  renderFrase();
   iniciarPresence();
+  renderAlerts();
+  // Verificar virada de dia a cada minuto
+  let lastDay = today;
+  setInterval(function() {
+    const now = todayBR();
+    if (now !== lastDay) { lastDay = now; loadTasks(now); }
+  }, 60000);
 }
 
-// ── CARREGAR TAREFAS ───────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// CARREGAR TAREFAS
+// ══════════════════════════════════════════════════════
 async function loadTasks(date) {
   viewingDate = date;
-  const today = getTodayBrasilia();
-
-  // 1. Tarefas do dia atual
-  let q = sb.from('tarefas').select('*').eq('data', date).order('prioridade_ordem').order('ordem');
-  if (currentUser.papel==='prestador') q = q.eq('responsavel', currentUser.responsavel_id);
+  let q = sb.from('tarefas').select('*').eq('data',date).order('prioridade_ordem').order('ordem');
+  if (currentUser.papel === 'prestador') q = q.eq('responsavel', currentUser.responsavel_id);
   const {data: tasks} = await q;
   allTasks = tasks || [];
 
-  // 2. States do dia atual
-  const ids = allTasks.map(t=>t.id);
-  let states = [];
-  if (ids.length) {
-    const {data: s} = await sb.from('task_states').select('*').in('task_id', ids).eq('data', date);
-    states = s || [];
-  }
-  taskStates = {};
-  states.forEach(s => { taskStates[s.task_id] = s.done; });
+  if (allTasks.length) {
+    const {data: states} = await sb.from('task_states').select('*').in('task_id', allTasks.map(t=>t.id)).eq('data',date);
+    taskStates = {};
+    (states||[]).forEach(s => { taskStates[s.task_id] = s.done; });
+  } else { taskStates = {}; }
 
-  // 3. Carregar carry (pendentes de dias anteriores) — só se estiver vendo hoje
+  // Carry — pendentes de dias anteriores
   carryTasks = [];
-  if (date === today) {
-    let qOld = sb.from('tarefas').select('*').lt('data', today);
-    if (currentUser.papel==='prestador') qOld = qOld.eq('responsavel', currentUser.responsavel_id);
-    const {data: oldTasks} = await qOld;
-
-    if (oldTasks?.length) {
-      const oldIds = oldTasks.map(t=>t.id);
-      // Buscar states de TODOS os dias anteriores para cada task
-      const {data: oldStates} = await sb.from('task_states').select('*').in('task_id', oldIds);
-      const doneMap = {};
-      (oldStates||[]).forEach(s => {
-        if (s.done) doneMap[s.task_id] = true;
-      });
-      carryTasks = oldTasks.filter(t => !doneMap[t.id]);
+  if (date === todayBR()) {
+    let qOld = sb.from('tarefas').select('*').lt('data', date);
+    if (currentUser.papel === 'prestador') qOld = qOld.eq('responsavel', currentUser.responsavel_id);
+    const {data: old} = await qOld;
+    if (old?.length) {
+      const {data: oldSt} = await sb.from('task_states').select('*').in('task_id', old.map(t=>t.id));
+      const done = new Set((oldSt||[]).filter(s=>s.done).map(s=>s.task_id));
+      carryTasks = old.filter(t => !done.has(t.id));
     }
   }
-
-  document.getElementById('painel-date').textContent = formatDateBR(date);
+  document.getElementById('painel-date').textContent = fmtDate(date);
   renderTabs();
-  renderStats();
-  renderClients();
+  renderStats(currentTab);
 }
 
-// ── TABS ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════
 function renderTabs() {
   const wrap = document.getElementById('tabs-wrap');
-  if (currentUser.papel==='prestador') {
+  if (currentUser.papel === 'prestador') {
     currentTab = currentUser.responsavel_id;
-    renderTasks(currentTab);
-    return;
+    renderTasksForTab(currentTab); return;
   }
-  const resps = [...new Set([...allTasks, ...carryTasks].map(t=>t.responsavel))];
-  const tabs = ['geral', ...resps];
+  const resps = [...new Set([...allTasks,...carryTasks].map(t=>t.responsavel))];
+  const tabs = ['geral',...resps];
   wrap.innerHTML = tabs.map(r =>
-    `<button class="tab-btn ${currentTab===r?'active':''}" onclick="setTab('${r}',this)">${r==='geral'?'Geral':RESP_LABELS[r]||r}</button>`
+    '<button class="tab-btn'+(currentTab===r?' active':'')+'" data-tab="'+r+'">'+(r==='geral'?'Geral':(RESP[r]||r))+'</button>'
   ).join('');
-  renderTasks(currentTab);
+  wrap.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      currentTab = this.dataset.tab;
+      wrap.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      renderTasksForTab(currentTab);
+      renderStats(currentTab);
+    });
+  });
+  renderTasksForTab(currentTab);
 }
 
-function setTab(tab, el) {
-  currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  renderTasks(tab);
-}
-
-// ── RENDER TASKS ───────────────────────────────────────────
-function renderTasks(tab) {
+// ══════════════════════════════════════════════════════
+// RENDER TASKS
+// ══════════════════════════════════════════════════════
+function renderTasksForTab(tab) {
   const carry = tab==='geral' ? carryTasks : carryTasks.filter(t=>t.responsavel===tab);
   const day = tab==='geral' ? allTasks : allTasks.filter(t=>t.responsavel===tab);
-  const dayPending = day.filter(t=>!taskStates[t.id]);
-  const dayDone = day.filter(t=>taskStates[t.id]);
-
-  renderStats(tab);
-
+  const pend = day.filter(t=>!taskStates[t.id]);
   const wrap = document.getElementById('tasks-wrap');
+
   if (!carry.length && !day.length) {
-    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>Nenhuma tarefa para hoje nesta aba.</div></div>';
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>Nenhuma tarefa para hoje.</div></div>';
     return;
   }
 
   let html = '';
-
-  // CARRY — pendentes de dias anteriores (prioridade máxima, aparecem primeiro)
+  // Carry primeiro
   if (carry.length) {
-    html += `<div class="priority-section">
-      <div class="priority-header">
-        <div class="priority-dot dot-pendente"></div>
-        <div class="priority-title title-pendente">⚠️ Pendentes (dias anteriores)</div>
-        <div class="priority-count">${carry.length} tarefa${carry.length>1?'s':''} — prioridade máxima</div>
-      </div>
-      ${carry.map(t=>renderCard(t, true)).join('')}
-    </div>`;
+    html += '<div class="priority-section"><div class="priority-header"><div class="priority-dot dot-pendente"></div><div class="priority-title title-pendente">⚠️ Pendentes (dias anteriores)</div><div class="priority-count">'+carry.length+' — prioridade máxima</div></div>';
+    carry.forEach(t => { html += cardHTML(t, true); });
+    html += '</div>';
   }
-
-  // ALTA
-  const alta = dayPending.filter(t=>t.prioridade==='alta');
-  if (alta.length) {
-    html += renderSection('alta','Alta','3h · 1h cada', alta, 4);
-  }
-  // MEDIA
-  const media = dayPending.filter(t=>t.prioridade==='media');
-  if (media.length) {
-    html += renderSection('media','Média','2h total', media, 3);
-  }
-  // BAIXA
-  const baixa = dayPending.filter(t=>t.prioridade==='baixa');
-  if (baixa.length) {
-    html += renderSection('baixa','Baixa','1h total', baixa, 2);
-  }
+  // Por prioridade
+  ['alta','media','baixa'].forEach(p => {
+    const g = pend.filter(t=>t.prioridade===p);
+    if (!g.length) return;
+    const labels={alta:'Alta',media:'Média',baixa:'Baixa'};
+    const meta={alta:'3h · 1h cada',media:'2h total',baixa:'1h total'};
+    const poms={alta:4,media:3,baixa:2};
+    const ps = Array(poms[p]).fill(0).map((_,i)=>'<div class="pom '+(i%2===0?'pom-w':'pom-r')+'"></div>').join('');
+    html += '<div class="priority-section"><div class="priority-header"><div class="priority-dot dot-'+p+'"></div><div class="priority-title title-'+p+'">'+labels[p]+'</div><div class="priority-count">'+g.length+' tarefa'+(g.length>1?'s':'')+' · '+meta[p]+'</div><div class="poms">'+ps+'</div></div>';
+    g.forEach(t => { html += cardHTML(t, false); });
+    html += '</div>';
+  });
 
   wrap.innerHTML = html;
 
+  // Eventos nos cards
+  wrap.querySelectorAll('.task-card').forEach(card => {
+    card.addEventListener('click', function() {
+      if (this.classList.contains('done')) return;
+      toggleTask(this.dataset.id, this.dataset.resp, this.dataset.date);
+    });
+  });
+
   // Next day btn
   const nd = document.getElementById('next-day-wrap');
-  nd.style.display = (dayPending.length===0 && carry.length===0 && day.length>0 && viewingDate===getTodayBrasilia()) ? 'block':'none';
+  nd.style.display = (pend.length===0 && carry.length===0 && day.length>0 && viewingDate===todayBR()) ? 'block':'none';
 }
 
-function renderSection(p, label, meta, tasks, pomCount) {
-  const poms = Array(pomCount).fill(0).map((_,i)=>`<div class="pom ${i%2===0?'pom-w':'pom-r'}"></div>`).join('');
-  return `<div class="priority-section">
-    <div class="priority-header">
-      <div class="priority-dot dot-${p}"></div>
-      <div class="priority-title title-${p}">${label}</div>
-      <div class="priority-count">${tasks.length} tarefa${tasks.length>1?'s':''} · ${meta}</div>
-      <div class="poms">${poms}</div>
-    </div>
-    ${tasks.map(t=>renderCard(t,false)).join('')}
-  </div>`;
-}
-
-function renderCard(t, isCarry) {
+function cardHTML(t, isCarry) {
   const done = taskStates[t.id];
-  return `<div class="task-card ${isCarry?'pending-carry':''} ${done?'done':''}" onclick="toggleTask('${t.id}','${t.responsavel}','${t.data}')" id="tc-${t.id}">
-    <div class="task-check ${done?'on':''}">✓</div>
-    <div class="task-body">
-      <div class="task-title">${t.titulo}</div>
-      <div class="task-desc">${t.descricao||''}</div>
-      <div class="task-meta">
-        <span class="badge badge-client">${t.cliente}</span>
-        <span class="badge badge-type">${t.tipo}</span>
-        ${t.horario?`<span class="badge badge-time">${t.horario}</span>`:''}
-        <span class="badge badge-${t.prioridade}">${t.prioridade}</span>
-        ${isCarry?`<span class="badge badge-carry">📅 De ${t.data}</span>`:''}
-        <span class="badge badge-time">${RESP_LABELS[t.responsavel]||t.responsavel}</span>
-      </div>
-    </div>
-  </div>`;
+  return '<div class="task-card'+(isCarry?' pending-carry':'')+(done?' done':'')+'" data-id="'+t.id+'" data-resp="'+t.responsavel+'" data-date="'+t.data+'" id="tc-'+t.id+'">'
+    +'<div class="task-check'+(done?' on':'')+'">✓</div>'
+    +'<div class="task-body">'
+    +'<div class="task-title">'+t.titulo+'</div>'
+    +(t.descricao?'<div class="task-desc">'+t.descricao+'</div>':'')
+    +'<div class="task-meta">'
+    +'<span class="badge badge-client">'+t.cliente+'</span>'
+    +'<span class="badge badge-type">'+t.tipo+'</span>'
+    +(t.horario?'<span class="badge badge-time">'+t.horario+'</span>':'')
+    +'<span class="badge badge-'+t.prioridade+'">'+t.prioridade+'</span>'
+    +(isCarry?'<span class="badge badge-carry">📅 '+t.data+'</span>':'')
+    +'<span class="badge badge-time">'+(RESP[t.responsavel]||t.responsavel)+'</span>'
+    +'</div></div></div>';
 }
 
-// ── STATS ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════
 function renderStats(tab) {
-  tab = tab || currentTab;
   const carry = tab==='geral' ? carryTasks : carryTasks.filter(t=>t.responsavel===tab);
   const day = tab==='geral' ? allTasks : allTasks.filter(t=>t.responsavel===tab);
   const done = day.filter(t=>taskStates[t.id]).length;
-  const open = day.filter(t=>!taskStates[t.id]).length;
   const total = day.length;
   const pct = total ? Math.round(done/total*100) : 0;
-
   document.getElementById('st-total').textContent = total;
   document.getElementById('st-done').textContent = done;
-  document.getElementById('st-open').textContent = open;
+  document.getElementById('st-open').textContent = total-done;
   document.getElementById('st-carry').textContent = carry.length;
   document.getElementById('prog-fill').style.width = pct+'%';
-  document.getElementById('prog-text').textContent = `${done} / ${total}`;
+  document.getElementById('prog-text').textContent = done+' / '+total;
 }
 
-// ── ALERTS ─────────────────────────────────────────────────
-function renderAlerts() {
-  const wrap = document.getElementById('alerts-wrap');
-  const alerts = window.LABAREDA_ALERTS || [];
-  wrap.innerHTML = alerts.map(a=>
-    `<div class="alert-box alert-${a.type}" style="margin-bottom:8px">${a.text}</div>`
-  ).join('');
-}
-
-// ── CLIENTS ────────────────────────────────────────────────
-function renderClients() {
-  if (currentUser?.papel!=='admin') return;
-  document.getElementById('clients-list').innerHTML = CLIENTS_CONFIG.map((c,i)=>`
-    <div class="client-item" onclick="editarStatusCliente(${i})" style="cursor:pointer" title="Clique para editar o status">
-      <div class="client-dot" style="background:${c.cor}"></div>
-      <div class="client-info">
-        <div class="client-name">${c.nome}</div>
-        <div class="client-status">${c.status}</div>
-        <span class="client-fase fase-${c.fase}">${c.faseLabel}</span>
-      </div>
-      <div style="color:var(--text3);font-size:14px;margin-left:6px">✏️</div>
-    </div>`).join('');
-}
-
-function editarStatusCliente(idx) {
-  const c = CLIENTS_CONFIG[idx];
-  const novoStatus = prompt(`✏️ Status de "${c.nome}":`, c.status);
-  if (novoStatus !== null && novoStatus.trim()) {
-    CLIENTS_CONFIG[idx].status = novoStatus.trim();
-    renderClients();
-  }
-}
-
-// ── TOGGLE ─────────────────────────────────────────────────
-async function toggleTask(taskId, who, taskDate) {
+// ══════════════════════════════════════════════════════
+// TOGGLE
+// ══════════════════════════════════════════════════════
+async function toggleTask(taskId, resp, taskDate) {
   const newState = !taskStates[taskId];
   taskStates[taskId] = newState;
-
-  const card = document.getElementById(`tc-${taskId}`);
+  const card = document.getElementById('tc-'+taskId);
   if (card) {
     card.querySelector('.task-check').classList.toggle('on', newState);
     if (newState) {
       card.classList.add('done');
-      setTimeout(() => {
-        card.style.transition='max-height .4s ease, opacity .4s ease, margin .4s ease, padding .4s ease';
-        card.style.overflow='hidden';
+      setTimeout(function() {
+        card.style.transition = 'opacity .4s, max-height .4s';
+        card.style.overflow = 'hidden';
         card.style.maxHeight = card.scrollHeight+'px';
-        setTimeout(()=>{card.style.maxHeight='0';card.style.opacity='0';card.style.marginBottom='0';card.style.paddingTop='0';card.style.paddingBottom='0';},50);
-        setTimeout(()=>{ renderTasks(currentTab); renderStats(); checkAllDone(); }, 500);
-      }, 200);
+        setTimeout(function() { card.style.maxHeight='0'; card.style.opacity='0'; card.style.marginBottom='0'; }, 50);
+        setTimeout(function() { renderTasksForTab(currentTab); renderStats(currentTab); }, 500);
+      }, 250);
     }
   }
-
-  // Salvar state — usa a data ORIGINAL da tarefa
-  await sb.from('task_states').upsert({
-    task_id: taskId,
-    data: taskDate, // data original da tarefa
-    done: newState,
-    updated_at: new Date().toISOString()
-  }, { onConflict: 'task_id,data' });
+  await sb.from('task_states').upsert({task_id:taskId,data:taskDate,done:newState,updated_at:new Date().toISOString()},{onConflict:'task_id,data'});
 }
 
-function checkAllDone() {
-  const tab = currentTab;
-  const carry = tab==='geral' ? carryTasks : carryTasks.filter(t=>t.responsavel===tab);
-  const day = tab==='geral' ? allTasks : allTasks.filter(t=>t.responsavel===tab);
-  const pending = day.filter(t=>!taskStates[t.id]);
-  const nd = document.getElementById('next-day-wrap');
-  nd.style.display = (pending.length===0 && carry.length===0 && day.length>0 && viewingDate===getTodayBrasilia()) ? 'block':'none';
-}
-
-// ── PRÓXIMO DIA ────────────────────────────────────────────
-async function verProximoDia() {
-  const tomorrow = getTomorrowBrasilia();
-  document.getElementById('next-day-wrap').style.display='none';
-  await loadTasks(tomorrow);
-  document.getElementById('painel-date').textContent = formatDateBR(tomorrow) + ' (adiantando)';
-}
-
-// ── REALTIME ───────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// REALTIME
+// ══════════════════════════════════════════════════════
 function subscribeRealtime() {
-  sb.channel('lb_rt').on('postgres_changes', {event:'*',schema:'public',table:'task_states'}, payload => {
-    if (!payload.new) return;
+  sb.channel('lb_rt').on('postgres_changes',{event:'*',schema:'public',table:'task_states'},function(payload) {
+    if (!payload.new || payload.new.data !== viewingDate) return;
     const {task_id, done} = payload.new;
-    if (taskStates[task_id]===done) return;
+    if (taskStates[task_id] === done) return;
     taskStates[task_id] = done;
-    const card = document.getElementById(`tc-${task_id}`);
+    const card = document.getElementById('tc-'+task_id);
     if (card) { card.querySelector('.task-check').classList.toggle('on',done); card.classList.toggle('done',done); }
-    renderStats();
+    renderStats(currentTab);
   }).subscribe();
 }
 
-// ── PAGES ──────────────────────────────────────────────────
-function showPage(page, el) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById(`page-${page}`).classList.add('active');
-  el.classList.add('active');
-  if (page==='calendario') renderCalendar();
-  if (page==='equipe') renderEquipe();
-}
-
-async function renderEquipe() {
-  const today = getTodayBrasilia();
-  document.getElementById('equipe-date').textContent = `Tarefas de hoje — ${formatDateBR(today)}`;
-  const wrap = document.getElementById('equipe-wrap');
-  wrap.innerHTML = '<div class="empty-state"><div>Carregando...</div></div>';
-
-  const membros = [
-    {id:'ed', nome:'Edivaldo Ferreira', papel:'Produção · Estratégia · Design'},
-    {id:'kt', nome:'Kethly Suely', papel:'Relacionamento · Atendimento · Organização'},
-    {id:'danilo', nome:'Danilo Souza', papel:'Editor de Vídeo · Vídeos Marcos Adriano'},
-    {id:'micheline', nome:'Micheline Oliveira', papel:'Editora de Vídeo · Magnólia e Thaís'}
-  ];
-
-  const {data: equipeTasks} = await sb.from('tarefas').select('*').eq('data', today).order('prioridade_ordem').order('ordem');
-  const {data: equipeStates} = await sb.from('task_states').select('*').eq('data', today);
-  const stateMap = {};
-  (equipeStates||[]).forEach(s=>{ stateMap[s.task_id]=s.done; });
-
-  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">';
-
-  membros.forEach(m => {
-    const mTasks = (equipeTasks||[]).filter(t=>t.responsavel===m.id);
-    const mDone = mTasks.filter(t=>stateMap[t.id]).length;
-    const mOpen = mTasks.filter(t=>!stateMap[t.id]).length;
-    const pct = mTasks.length ? Math.round(mDone/mTasks.length*100) : 0;
-
-    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,92,0,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--orange)">${m.nome.charAt(0)}</div>
-        <div>
-          <div style="font-size:14px;font-weight:600">${m.nome}</div>
-          <div style="font-size:11px;color:var(--text2)">${m.papel}</div>
-        </div>
-        <div style="margin-left:auto;font-size:20px;font-weight:700;color:${pct===100?'var(--green)':'var(--orange)'}">${pct}%</div>
-      </div>
-      <div style="height:3px;background:var(--border);border-radius:2px;margin-bottom:12px;overflow:hidden">
-        <div style="height:100%;background:${pct===100?'var(--green)':'var(--orange)'};width:${pct}%;border-radius:2px"></div>
-      </div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">${mDone} de ${mTasks.length} tarefas · ${mOpen} em aberto</div>`;
-
-    if (mTasks.length) {
-      mTasks.filter(t=>!stateMap[t.id]).slice(0,5).forEach(t=>{
-        html+=`<div style="background:var(--bg3);border-radius:6px;padding:8px 10px;margin-bottom:5px;border-left:2px solid ${t.prioridade==='alta'?'var(--red)':t.prioridade==='media'?'var(--amber)':'var(--green)'}">
-          <div style="font-size:12px;font-weight:500">${t.titulo}</div>
-          <div style="display:flex;gap:4px;margin-top:3px">
-            <span class="badge badge-client" style="font-size:9px">${t.cliente}</span>
-            <span class="badge badge-${t.prioridade}" style="font-size:9px">${t.prioridade}</span>
-          </div>
-        </div>`;
-      });
-      if (mOpen > 5) html+=`<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:4px">+${mOpen-5} mais...</div>`;
-    } else {
-      html+='<div style="font-size:12px;color:var(--text3);text-align:center;padding:10px">Sem tarefas hoje</div>';
-    }
-    html += '</div>';
-  });
-
-  html += '</div>';
-  wrap.innerHTML = html;
-}
-
-// ── CALENDÁRIO ─────────────────────────────────────────────
-async function renderCalendar() {
-  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('cal-title').textContent = `${meses[calMonth]} ${calYear}`;
-
-  const first = new Date(calYear, calMonth, 1).getDay();
-  const days = new Date(calYear, calMonth+1, 0).getDate();
-  const prevDays = new Date(calYear, calMonth, 0).getDate();
-  const today = getTodayBrasilia();
-
-  const startStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-01`;
-  const endStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(days).padStart(2,'0')}`;
-
-  let q = sb.from('tarefas').select('id,data').gte('data',startStr).lte('data',endStr);
-  if (currentUser.papel==='prestador') q = q.eq('responsavel', currentUser.responsavel_id);
-  const {data: mTasks} = await q;
-
-  const mIds = (mTasks||[]).map(t=>t.id);
-  let doneSet = new Set();
-  if (mIds.length) {
-    const {data: mStates} = await sb.from('task_states').select('task_id,done').in('task_id', mIds);
-    (mStates||[]).filter(s=>s.done).forEach(s=>doneSet.add(s.task_id));
-  }
-
-  const tasksByDate = {};
-  (mTasks||[]).forEach(t=>{
-    if (!tasksByDate[t.data]) tasksByDate[t.data]={p:0,d:0};
-    doneSet.has(t.id) ? tasksByDate[t.data].d++ : tasksByDate[t.data].p++;
-  });
-
-  const weekDays = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  let html = weekDays.map(d=>`<div class="cal-day-header">${d}</div>`).join('');
-
-  for (let i=first-1; i>=0; i--) {
-    html += `<div class="cal-day other-month"><div class="cal-day-num">${prevDays-i}</div></div>`;
-  }
-
-  for (let d=1; d<=days; d++) {
-    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isT = ds===today;
-    const info = tasksByDate[ds]||{p:0,d:0};
-    const dots = [
-      info.p>0 ? `<div class="cal-dot" style="background:var(--amber)"></div>` : '',
-      info.d>0 ? `<div class="cal-dot" style="background:var(--green)"></div>` : ''
-    ].join('');
-    html += `<div class="cal-day ${isT?'today':''}" onclick="abrirDia('${ds}')">
-      <div class="cal-day-num">${d}</div>
-      <div class="cal-dots">${dots}</div>
-    </div>`;
-  }
-
-  const total = first + days;
-  const rem = total%7===0 ? 0 : 7-(total%7);
-  for (let d=1; d<=rem; d++) html+=`<div class="cal-day other-month"><div class="cal-day-num">${d}</div></div>`;
-
-  document.getElementById('cal-grid').innerHTML = html;
-}
-
-function navMes(dir) {
-  calMonth+=dir;
-  if (calMonth>11){calMonth=0;calYear++;}
-  if (calMonth<0){calMonth=11;calYear--;}
-  renderCalendar();
-}
-
-async function abrirDia(ds) {
-  document.getElementById('cal-modal-title').textContent = formatDateBR(ds);
-  document.getElementById('cal-modal-body').innerHTML = '<div class="empty-state"><div>Carregando...</div></div>';
-  document.getElementById('cal-modal').classList.add('open');
-
-  let q = sb.from('tarefas').select('*').eq('data',ds).order('prioridade_ordem').order('ordem');
-  if (currentUser.papel==='prestador') q = q.eq('responsavel', currentUser.responsavel_id);
-  const {data: dTasks} = await q;
-
-  if (!dTasks?.length) {
-    document.getElementById('cal-modal-body').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>Sem tarefas neste dia.</div></div>';
-    return;
-  }
-
-  const ids = dTasks.map(t=>t.id);
-  const {data: dStates} = await sb.from('task_states').select('*').in('task_id',ids).eq('data',ds);
-  const doneSet = new Set((dStates||[]).filter(s=>s.done).map(s=>s.task_id));
-
-  const done = dTasks.filter(t=>doneSet.has(t.id));
-  const pend = dTasks.filter(t=>!doneSet.has(t.id));
-
-  let html = '';
-  if (pend.length) {
-    html += `<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:8px">⏳ Pendentes (${pend.length})</div>`;
-    html += pend.map(t=>`<div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:6px">
-      <div style="font-size:13px;font-weight:500">${t.titulo}</div>
-      <div style="display:flex;gap:5px;margin-top:4px">
-        <span class="badge badge-client">${t.cliente}</span>
-        <span class="badge badge-type">${t.tipo}</span>
-        <span class="badge badge-${t.prioridade}">${t.prioridade}</span>
-      </div>
-    </div>`).join('');
-    html += '</div>';
-  }
-  if (done.length) {
-    html += `<div><div style="font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:8px">✅ Concluídas (${done.length})</div>`;
-    html += done.map(t=>`<div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:6px;opacity:.55">
-      <div style="font-size:13px;font-weight:500;text-decoration:line-through">${t.titulo}</div>
-      <div style="display:flex;gap:5px;margin-top:4px">
-        <span class="badge badge-client">${t.cliente}</span>
-        <span class="badge badge-type">${t.tipo}</span>
-      </div>
-    </div>`).join('');
-    html += '</div>';
-  }
-
-  document.getElementById('cal-modal-body').innerHTML = html;
-}
-
-// ── RELATÓRIO ──────────────────────────────────────────────
-let _reportTxt = '';
-let _reportAgente = '';
-
-async function abrirRelatorio() {
-  document.getElementById('report-body').innerHTML = '<div class="empty-state"><div>Gerando relatório...</div></div>';
-  document.getElementById('report-modal').classList.add('open');
-
-  const tab = currentTab;
-  const carry = tab==='geral' ? carryTasks : carryTasks.filter(t=>t.responsavel===tab);
-  const day = tab==='geral' ? allTasks : allTasks.filter(t=>t.responsavel===tab);
-  const done = day.filter(t=>taskStates[t.id]);
-  const pend = day.filter(t=>!taskStates[t.id]);
-  const total = day.length;
-  const pct = total ? Math.round(done.length/total*100) : 0;
-  const hoje = formatDateBR(viewingDate);
-
-  let html = `<div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:16px">
-    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${hoje} · Brasília GMT-3</div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="font-size:28px;font-weight:700;color:var(--orange)">${pct}%</div>
-      <div><div style="font-size:14px;font-weight:500">${done.length} de ${total} tarefas concluídas</div>
-      ${carry.length?`<div style="font-size:12px;color:var(--red);margin-top:2px">⚠️ ${carry.length} pendências de dias anteriores</div>`:''}
-      </div>
-    </div>
-    <div style="height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden">
-      <div style="height:100%;background:var(--green);width:${pct}%;border-radius:2px"></div>
-    </div>
-  </div>`;
-
-  if (carry.length) {
-    html += `<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:8px">🚨 CARRY — Pendentes de dias anteriores (${carry.length})</div>`;
-    carry.forEach(t=>{html+=`<div style="background:rgba(226,75,74,0.07);border-left:2px solid var(--red);border-radius:6px;padding:10px 12px;margin-bottom:6px">
-      <div style="font-size:13px;font-weight:500">${t.titulo}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px">Original: ${t.data}</div>
-      <div style="display:flex;gap:5px;margin-top:4px"><span class="badge badge-client">${t.cliente}</span><span class="badge badge-type">${t.tipo}</span></div>
-    </div>`});
-    html += '</div>';
-  }
-
-  if (done.length) {
-    html += `<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:8px">✅ CONCLUÍDAS (${done.length})</div>`;
-    done.forEach(t=>{html+=`<div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:6px;opacity:.7">
-      <div style="font-size:13px;font-weight:500;text-decoration:line-through">${t.titulo}</div>
-      <div style="display:flex;gap:5px;margin-top:4px"><span class="badge badge-client">${t.cliente}</span><span class="badge badge-type">${t.tipo}</span><span class="badge badge-time">${RESP_LABELS[t.responsavel]||t.responsavel}</span></div>
-    </div>`});
-    html += '</div>';
-  }
-
-  if (pend.length) {
-    html += `<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:8px">⏳ PENDENTES HOJE — viram prioridade ALTA amanhã (${pend.length})</div>`;
-    pend.forEach(t=>{html+=`<div style="background:rgba(239,159,39,0.07);border-left:2px solid var(--amber);border-radius:6px;padding:10px 12px;margin-bottom:6px">
-      <div style="font-size:13px;font-weight:500">${t.titulo}</div>
-      <div style="font-size:12px;color:var(--text2);margin-top:2px">${t.descricao||''}</div>
-      <div style="display:flex;gap:5px;margin-top:4px"><span class="badge badge-client">${t.cliente}</span><span class="badge badge-type">${t.tipo}</span><span class="badge badge-alta">Alta amanhã</span></div>
-    </div>`});
-    html += '</div>';
-  }
-
-  document.getElementById('report-body').innerHTML = html;
-
-  // Gerar textos para copiar
-  _reportTxt = gerarTextoRelatorio(done, pend, carry, hoje);
-  _reportAgente = gerarTextoAgente(done, pend, carry, hoje);
-}
-
-function gerarTextoRelatorio(done, pend, carry, hoje) {
-  let t = `📋 RELATÓRIO DO DIA — ${hoje}\n`;
-  t += `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  if (carry.length) { t+=`🚨 CARRY (dias anteriores) — ${carry.length}:\n`; carry.forEach(x=>{t+=`• ${x.titulo} [${x.cliente}·${x.tipo}] — de ${x.data}\n`;}); t+='\n'; }
-  if (done.length) { t+=`✅ CONCLUÍDAS — ${done.length}:\n`; done.forEach(x=>{t+=`• ${x.titulo} [${x.cliente}·${x.tipo}] — ${RESP_LABELS[x.responsavel]||x.responsavel}\n`;}); t+='\n'; }
-  if (pend.length) { t+=`⏳ PENDENTES — ${pend.length} (prioridade ALTA amanhã):\n`; pend.forEach(x=>{t+=`• ${x.titulo} [${x.cliente}·${x.tipo}] — ${RESP_LABELS[x.responsavel]||x.responsavel}\n`;}); t+='\n'; }
-  t+=`━━━━━━━━━━━━━━━━━━━━━━━━━━━\nTotal: ${done.length+pend.length} | Concluídas: ${done.length} | Pendentes: ${pend.length}`;
-  return t;
-}
-
-function gerarTextoAgente(done, pend, carry, hoje) {
-  let t = `Relatório do dia — ${hoje}:\n\n`;
-  if (done.length) { t+=`FOI FEITO:\n`; done.forEach(x=>{t+=`- ${x.titulo} (${x.cliente} · ${x.tipo}) ✅\n`;}); t+='\n'; }
-  if (pend.length) { t+=`NÃO FOI CONCLUÍDO — incluir como prioridade ALTA amanhã:\n`; pend.forEach(x=>{t+=`- ${x.titulo} (${x.cliente} · ${x.tipo} · ${RESP_LABELS[x.responsavel]||x.responsavel})\n`;}); t+='\n'; }
-  if (carry.length) { t+=`ACUMULADO DE DIAS ANTERIORES — também prioridade ALTA:\n`; carry.forEach(x=>{t+=`- ${x.titulo} (${x.cliente}) — de ${x.data}\n`;}); t+='\n'; }
-  t+=`Por favor, organize as tarefas de amanhã priorizando pendentes e acumuladas como ALTA prioridade, depois as novas tarefas do dia.`;
-  return t;
-}
-
-function copiarRelatorio() {
-  copiarTexto(_reportTxt, '✅ Relatório copiado!');
-}
-
-function copiarParaAgente() {
-  copiarTexto(_reportAgente, '✅ Texto para o agente copiado! Cole aqui no Claude.');
-}
-
-function copiarTexto(txt, msg) {
-  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(()=>alert(msg)); }
-  else { const el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);alert(msg); }
-}
-
-function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click', e=>{if(e.target===e.currentTarget)m.classList.remove('open');}));
-
-
-// ── FRASES MOTIVACIONAIS ──────────────────────────────────
-const FRASES = [
-  {texto: 'A ação cura o medo.', autor: '— Dale Carnegie'},
-  {texto: 'Faça o difícil enquanto ele ainda é fácil.', autor: '— Dale Carnegie'},
-  {texto: 'Um pequeno passo hoje vale mais do que uma grande intenção amanhã.', autor: '— Labareda'},
-  {texto: 'O sucesso nasce da constância.', autor: '— Labareda'},
-  {texto: 'Produtividade não é fazer tudo. É fazer o que importa.', autor: '— Labareda'},
-  {texto: 'Quem age com clareza avança com mais força.', autor: '— Labareda'},
-  {texto: 'Disciplina constrói resultados que a motivação sozinha não sustenta.', autor: '— Labareda'},
-  {texto: 'No digital, vence quem aparece, melhora e continua.', autor: '— Labareda'},
-  {texto: 'Comece com o que você tem. Mas comece.', autor: '— Dale Carnegie'},
-  {texto: 'O trabalho bem feito de hoje prepara o crescimento de amanhã.', autor: '— Labareda'},
-  {texto: 'Não espere. O momento certo nunca vai chegar.', autor: '— Napoleon Hill'},
-  {texto: 'Vença seus medos e os resultados virão até você.', autor: '— Dale Carnegie'},
-  {texto: 'Execução é o que separa quem sonha de quem conquista.', autor: '— Labareda'},
-  {texto: 'Cada tarefa concluída hoje é um tijolo do seu futuro.', autor: '— Labareda'},
-];
-
-function renderFrase() {
-  const idx = Math.floor(Math.random() * FRASES.length);
-  const f = FRASES[idx];
-  const el = document.getElementById('frase-text');
-  const au = document.getElementById('frase-author');
-  if (el) el.textContent = '"' + f.texto + '"';
-  if (au) au.textContent = f.autor;
-}
-
-// ── USUÁRIOS ONLINE ────────────────────────────────────────
-let onlineChannel = null;
-let onlineUsers = {};
-
+// ══════════════════════════════════════════════════════
+// ONLINE PRESENCE
+// ══════════════════════════════════════════════════════
 function iniciarPresence() {
   if (!sb || !currentUser) return;
-  onlineChannel = sb.channel('presence_labareda', {
-    config: { presence: { key: currentUser.login } }
-  });
-
-  onlineChannel
-    .on('presence', { event: 'sync' }, () => {
-      const state = onlineChannel.presenceState();
-      onlineUsers = {};
-      Object.values(state).forEach(presences => {
-        presences.forEach(p => {
-          onlineUsers[p.login] = { nome: p.nome, last: p.last_seen };
-        });
-      });
-      atualizarOnlineUI();
-    })
-    .subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        await onlineChannel.track({
-          login: currentUser.login,
-          nome: currentUser.nome,
-          last_seen: new Date().toISOString()
-        });
-      }
+  onlineChannel = sb.channel('presence_lb', {config:{presence:{key:currentUser.login}}});
+  onlineChannel.on('presence',{event:'sync'},function() {
+    const state = onlineChannel.presenceState();
+    onlineUsers = {};
+    Object.values(state).forEach(function(prs) {
+      prs.forEach(function(p) { onlineUsers[p.login] = {nome:p.nome, last:p.last_seen}; });
     });
-
-  // Atualizar presença a cada 60s
-  setInterval(async () => {
-    if (onlineChannel) {
-      await onlineChannel.track({
-        login: currentUser.login,
-        nome: currentUser.nome,
-        last_seen: new Date().toISOString()
-      });
+    atualizarOnlineUI();
+  }).subscribe(async function(status) {
+    if (status === 'SUBSCRIBED') {
+      await onlineChannel.track({login:currentUser.login,nome:currentUser.nome,last_seen:new Date().toISOString()});
     }
+  });
+  setInterval(async function() {
+    if (onlineChannel) await onlineChannel.track({login:currentUser.login,nome:currentUser.nome,last_seen:new Date().toISOString()});
   }, 60000);
 }
 
 function atualizarOnlineUI() {
   const count = Object.keys(onlineUsers).length;
-  const countEl = document.getElementById('online-count');
-  if (countEl) countEl.textContent = count > 0 ? ' · ' + count : '';
-
+  const el = document.getElementById('online-count');
+  if (el) el.textContent = count > 0 ? ' · '+count : '';
   const body = document.getElementById('online-popup-body');
   if (!body) return;
-
-  if (count === 0) {
-    body.innerHTML = '<div class="online-empty">Ninguém online no momento.</div>';
-    return;
-  }
-
-  body.innerHTML = Object.values(onlineUsers).map(u => {
-    const br = getBrasiliaDate();
-    const last = new Date(u.last);
-    const diffMin = Math.round((br - last) / 60000);
-    const timeStr = diffMin < 2 ? 'agora mesmo' : diffMin < 60 ? diffMin + 'min atrás' : 'há mais de 1h';
-    return \`<div class="online-user-item">
-      <div class="online-user-dot"></div>
-      <div class="online-user-name">\${u.nome}</div>
-      <div class="online-user-time">\${timeStr}</div>
-    </div>\`;
+  if (count === 0) { body.innerHTML = '<div class="online-empty">Ninguém online no momento.</div>'; return; }
+  body.innerHTML = Object.values(onlineUsers).map(function(u) {
+    const diff = Math.round((getBR() - new Date(u.last)) / 60000);
+    const t = diff < 2 ? 'agora mesmo' : diff < 60 ? diff+'min atrás' : 'há mais de 1h';
+    return '<div class="online-user-item"><div class="online-user-dot"></div><div class="online-user-name">'+u.nome+'</div><div class="online-user-time">'+t+'</div></div>';
   }).join('');
 }
 
-function toggleOnlinePopup(e) {
+document.getElementById('online-badge').addEventListener('click', function(e) {
   e.stopPropagation();
   const popup = document.getElementById('online-popup');
-  if (!popup) return;
   popup.classList.toggle('open');
   atualizarOnlineUI();
-}
-
-// Fechar popup ao clicar fora
-document.addEventListener('click', (e) => {
-  const popup = document.getElementById('online-popup');
-  const badge = document.getElementById('online-badge-btn');
-  if (popup && badge && !badge.contains(e.target)) {
-    popup.classList.remove('open');
+});
+document.addEventListener('click', function(e) {
+  const badge = document.getElementById('online-badge');
+  if (badge && !badge.contains(e.target)) {
+    document.getElementById('online-popup').classList.remove('open');
   }
 });
-// ── ALERTS CONFIG ──────────────────────────────────────────
-// Alertas automáticos por dia da semana (Brasília)
-function getAlertasDoDia() {
-  const br = getBrasiliaDate();
-  const dow = br.getDay(); // 0=Dom,1=Seg,2=Ter,3=Qua,4=Qui,5=Sex,6=Sáb
-  const alertas = [];
 
-  // Alerta de Pluma Baby atrasado (até pagar)
-  alertas.push({type:'red', text:'🚨 Pluma Baby — pagamento ATRASADO desde dia 10 · cobrar hoje com prazo final'});
-
-  // Alertas por dia da semana
-  const porDia = {
-    1: [{type:'blue', text:'📋 Segunda · Organizar semana · Follow-ups prioritários · Alinhar pendências'}],
-    2: [{type:'blue', text:'📋 Terça · Briefing e estratégia · Definir linha editorial maio'}],
-    3: [{type:'blue', text:'📋 Quarta · Criação de conteúdo · Produção e design'}],
-    4: [{type:'blue', text:'📋 Quinta · Gravação e execução · Captação de vídeos'}],
-    5: [{type:'blue', text:'📋 Sexta · Aprovações e agendamento · Enviar para clientes'}],
-    6: [{type:'green', text:'📋 Sábado · Organização e planejamento · Kethly: tarefas leves'}],
-    0: []
-  };
-
-  return [...alertas, ...(porDia[dow]||[])];
+// ══════════════════════════════════════════════════════
+// ALERTAS (só urgentes)
+// ══════════════════════════════════════════════════════
+function renderAlerts() {
+  const wrap = document.getElementById('alerts-wrap');
+  const dow = getBR().getDay();
+  const alerts = [];
+  // Só alertas realmente urgentes
+  if (dow === 5) alerts.push({type:'blue',text:'📅 Sexta · Aprovações e agendamento · Enviar para clientes'});
+  if (dow === 1) alerts.push({type:'blue',text:'📋 Segunda · Organizar semana · Follow-ups prioritários'});
+  wrap.innerHTML = alerts.map(a=>'<div class="alert-box alert-'+a.type+'" style="padding:10px 14px;border-radius:6px;font-size:13px;font-weight:500;margin-bottom:8px;border:1px solid;'+(a.type==='red'?'background:rgba(226,75,74,0.1);color:#ff8080;border-color:rgba(226,75,74,0.3)':'background:rgba(55,138,221,0.1);color:#70b3f0;border-color:rgba(55,138,221,0.3)')+'">'+a.text+'</div>').join('');
 }
-// Alerts — só mostrar se realmente urgente (Pluma pagamento, etc)
-window.LABAREDA_ALERTS = getAlertasDoDia().filter(a => a.type === 'red');
 
-// Renderizar alerts após DOM estar pronto
-setTimeout(() => {
-  // Alerts — só mostrar se realmente urgente (Pluma pagamento, etc)
-window.LABAREDA_ALERTS = getAlertasDoDia().filter(a => a.type === 'red');
-  renderAlerts();
-}, 100);
+// ══════════════════════════════════════════════════════
+// CLIENTS
+// ══════════════════════════════════════════════════════
+function renderClients() {
+  if (currentUser?.papel !== 'admin') return;
+  document.getElementById('clients-list').innerHTML = CLIENTS.map(function(c,i) {
+    return '<div class="client-item" data-idx="'+i+'">'
+      +'<div class="client-dot" style="background:'+c.c+'"></div>'
+      +'<div class="client-info">'
+      +'<div class="client-name">'+c.n+'</div>'
+      +'<div class="client-status">'+c.s+'</div>'
+      +'<span class="client-fase fase-'+c.f+'">'+c.f+(c.f==='enc'?' · Encerrado':' · Ciclo')+'</span>'
+      +'</div>'
+      +'<span style="color:var(--text3);font-size:12px">✏️</span>'
+      +'</div>';
+  }).join('');
+  document.querySelectorAll('.client-item[data-idx]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.idx);
+      const novo = prompt('Status de "'+CLIENTS[idx].n+'":', CLIENTS[idx].s);
+      if (novo !== null && novo.trim()) { CLIENTS[idx].s = novo.trim(); renderClients(); }
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════════════════
+document.getElementById('nav-painel').addEventListener('click', function() { showPage('painel', this); });
+document.getElementById('nav-calendario').addEventListener('click', function() { showPage('calendario', this); });
+document.getElementById('nav-equipe').addEventListener('click', function() { showPage('equipe', this); });
+
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+  if (page === 'calendario') renderCalendar();
+  if (page === 'equipe') renderEquipe();
+}
+
+// ══════════════════════════════════════════════════════
+// PRÓXIMO DIA
+// ══════════════════════════════════════════════════════
+document.getElementById('next-day-btn').addEventListener('click', async function() {
+  document.getElementById('next-day-wrap').style.display = 'none';
+  await loadTasks(tomorrowBR());
+  document.getElementById('painel-date').textContent = fmtDate(tomorrowBR()) + ' (adiantando)';
+});
+
+// ══════════════════════════════════════════════════════
+// CALENDÁRIO
+// ══════════════════════════════════════════════════════
+document.getElementById('cal-prev').addEventListener('click', function() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); });
+document.getElementById('cal-next').addEventListener('click', function() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); });
+
+async function renderCalendar() {
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('cal-title').textContent = meses[calMonth]+' '+calYear;
+  const first = new Date(calYear,calMonth,1).getDay();
+  const days = new Date(calYear,calMonth+1,0).getDate();
+  const prev = new Date(calYear,calMonth,0).getDate();
+  const today = todayBR();
+  const startStr = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-01';
+  const endStr = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(days).padStart(2,'0');
+  let q = sb.from('tarefas').select('id,data').gte('data',startStr).lte('data',endStr);
+  if (currentUser.papel === 'prestador') q = q.eq('responsavel', currentUser.responsavel_id);
+  const {data: mTasks} = await q;
+  const mIds = (mTasks||[]).map(t=>t.id);
+  let doneSet = new Set();
+  if (mIds.length) {
+    const {data: mSt} = await sb.from('task_states').select('task_id,done').in('task_id',mIds);
+    (mSt||[]).filter(s=>s.done).forEach(s=>doneSet.add(s.task_id));
+  }
+  const byDate = {};
+  (mTasks||[]).forEach(t=>{ if(!byDate[t.data])byDate[t.data]={p:0,d:0}; doneSet.has(t.id)?byDate[t.data].d++:byDate[t.data].p++; });
+  const wd=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  let html = wd.map(d=>'<div class="cal-day-header">'+d+'</div>').join('');
+  for(let i=first-1;i>=0;i--) html+='<div class="cal-day other-month"><div class="cal-day-num">'+(prev-i)+'</div></div>';
+  for(let d=1;d<=days;d++){
+    const ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const info=byDate[ds]||{p:0,d:0};
+    const dots=(info.p>0?'<div class="cal-dot" style="background:var(--amber)"></div>':'')+(info.d>0?'<div class="cal-dot" style="background:var(--green)"></div>':'');
+    html+='<div class="cal-day'+(ds===today?' today':'')+'" data-date="'+ds+'"><div class="cal-day-num">'+d+'</div><div class="cal-dots">'+dots+'</div></div>';
+  }
+  const rem=(first+days)%7===0?0:7-(first+days)%7;
+  for(let d=1;d<=rem;d++) html+='<div class="cal-day other-month"><div class="cal-day-num">'+d+'</div></div>';
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = html;
+  grid.querySelectorAll('.cal-day[data-date]').forEach(el=>{
+    el.addEventListener('click', function(){ abrirDia(this.dataset.date); });
+  });
+}
+
+async function abrirDia(ds) {
+  document.getElementById('cal-modal-title').textContent = fmtDate(ds);
+  document.getElementById('cal-modal-body').innerHTML = '<div class="empty-state"><div>Carregando...</div></div>';
+  document.getElementById('cal-modal').classList.add('open');
+  let q = sb.from('tarefas').select('*').eq('data',ds).order('prioridade_ordem').order('ordem');
+  if (currentUser.papel === 'prestador') q = q.eq('responsavel', currentUser.responsavel_id);
+  const {data: dTasks} = await q;
+  if (!dTasks?.length) { document.getElementById('cal-modal-body').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>Sem tarefas neste dia.</div></div>'; return; }
+  const {data: dSt} = await sb.from('task_states').select('*').in('task_id',dTasks.map(t=>t.id)).eq('data',ds);
+  const doneSet = new Set((dSt||[]).filter(s=>s.done).map(s=>s.task_id));
+  const done = dTasks.filter(t=>doneSet.has(t.id));
+  const pend = dTasks.filter(t=>!doneSet.has(t.id));
+  let html='';
+  if(pend.length){html+='<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:8px">⏳ Pendentes ('+pend.length+')</div>';pend.forEach(t=>{html+='<div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:6px"><div style="font-size:13px;font-weight:500">'+t.titulo+'</div><div style="display:flex;gap:5px;margin-top:4px"><span class="badge badge-client">'+t.cliente+'</span><span class="badge badge-type">'+t.tipo+'</span><span class="badge badge-'+t.prioridade+'">'+t.prioridade+'</span></div></div>';});html+='</div>';}
+  if(done.length){html+='<div><div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:8px">✅ Concluídas ('+done.length+')</div>';done.forEach(t=>{html+='<div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:6px;opacity:.5"><div style="font-size:13px;font-weight:500;text-decoration:line-through">'+t.titulo+'</div><div style="display:flex;gap:5px;margin-top:4px"><span class="badge badge-client">'+t.cliente+'</span><span class="badge badge-type">'+t.tipo+'</span></div></div>';});html+='</div>';}
+  document.getElementById('cal-modal-body').innerHTML = html;
+}
+
+document.getElementById('cal-modal-close').addEventListener('click', function(){ document.getElementById('cal-modal').classList.remove('open'); });
+document.getElementById('cal-modal').addEventListener('click', function(e){ if(e.target===this)this.classList.remove('open'); });
+
+// ══════════════════════════════════════════════════════
+// EQUIPE
+// ══════════════════════════════════════════════════════
+async function renderEquipe() {
+  const today = todayBR();
+  document.getElementById('equipe-date').textContent = 'Tarefas de hoje — '+fmtDate(today);
+  const membros = [
+    {id:'ed',nome:'Edivaldo Ferreira',papel:'Produção · Estratégia · Design'},
+    {id:'kt',nome:'Kethly Suely',papel:'Relacionamento · Atendimento · Organização'},
+    {id:'danilo',nome:'Danilo Souza',papel:'Editor de Vídeo'},
+    {id:'micheline',nome:'Micheline Oliveira',papel:'Editora de Vídeo'},
+  ];
+  const {data: eTasks} = await sb.from('tarefas').select('*').eq('data',today).order('prioridade_ordem').order('ordem');
+  const {data: eSt} = await sb.from('task_states').select('*').eq('data',today);
+  const stMap = {}; (eSt||[]).forEach(s=>{ stMap[s.task_id]=s.done; });
+  document.getElementById('equipe-wrap').innerHTML = membros.map(function(m){
+    const mt = (eTasks||[]).filter(t=>t.responsavel===m.id);
+    const md = mt.filter(t=>stMap[t.id]).length;
+    const mo = mt.filter(t=>!stMap[t.id]).length;
+    const pct = mt.length ? Math.round(md/mt.length*100) : 0;
+    const cor = pct===100?'var(--green)':'var(--orange)';
+    let cards = mt.filter(t=>!stMap[t.id]).slice(0,4).map(t=>'<div style="background:var(--bg);border-radius:6px;padding:8px 10px;margin-bottom:5px;border-left:2px solid '+(t.prioridade==='alta'?'var(--red)':t.prioridade==='media'?'var(--amber)':'var(--green)')+'"><div style="font-size:12px;font-weight:500">'+t.titulo+'</div><div style="display:flex;gap:4px;margin-top:3px"><span class="badge badge-client" style="font-size:9px">'+t.cliente+'</span><span class="badge badge-'+t.prioridade+'" style="font-size:9px">'+t.prioridade+'</span></div></div>').join('');
+    if(mo>4) cards+='<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:4px">+'+(mo-4)+' mais...</div>';
+    if(!mt.length) cards='<div style="font-size:12px;color:var(--text3);text-align:center;padding:10px">Sem tarefas hoje</div>';
+    return '<div class="equipe-card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div class="equipe-avatar">'+m.nome.charAt(0)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600">'+m.nome+'</div><div style="font-size:11px;color:var(--text2)">'+m.papel+'</div></div><div style="font-size:20px;font-weight:700;color:'+cor+'">'+pct+'%</div></div><div style="height:3px;background:var(--border);border-radius:2px;margin-bottom:12px;overflow:hidden"><div style="height:100%;background:'+cor+';width:'+pct+'%;border-radius:2px"></div></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">'+md+' de '+mt.length+' · '+mo+' em aberto</div>'+cards+'</div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// RELATÓRIO
+// ══════════════════════════════════════════════════════
+document.getElementById('report-btn').addEventListener('click', abrirRelatorio);
+document.getElementById('report-modal-close').addEventListener('click', function(){ document.getElementById('report-modal').classList.remove('open'); });
+document.getElementById('close-report-btn').addEventListener('click', function(){ document.getElementById('report-modal').classList.remove('open'); });
+document.getElementById('report-modal').addEventListener('click', function(e){ if(e.target===this)this.classList.remove('open'); });
+document.getElementById('copy-report-btn').addEventListener('click', function(){ copiar(_reportTxt,'✅ Relatório copiado!'); });
+document.getElementById('copy-agent-btn').addEventListener('click', function(){ copiar(_reportAgente,'✅ Texto copiado! Cole aqui no Claude.'); });
+
+async function abrirRelatorio() {
+  document.getElementById('report-body').innerHTML = '<div class="empty-state"><div>Gerando...</div></div>';
+  document.getElementById('report-modal').classList.add('open');
+  const tab = currentTab;
+  const carry = tab==='geral'?carryTasks:carryTasks.filter(t=>t.responsavel===tab);
+  const day = tab==='geral'?allTasks:allTasks.filter(t=>t.responsavel===tab);
+  const done = day.filter(t=>taskStates[t.id]);
+  const pend = day.filter(t=>!taskStates[t.id]);
+  const pct = day.length?Math.round(done.length/day.length*100):0;
+  const hoje = fmtDate(viewingDate);
+  let html='<div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:16px"><div style="font-size:12px;color:var(--text2);margin-bottom:6px">'+hoje+'</div><div style="font-size:28px;font-weight:700;color:var(--orange)">'+pct+'%</div><div style="font-size:13px;color:var(--text2)">'+done.length+' de '+day.length+' tarefas concluídas'+(carry.length?'<div style=\'color:var(--red);margin-top:4px\'>⚠️ '+carry.length+' pendências anteriores</div>':'')+'</div><div style="height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden"><div style="height:100%;background:var(--green);width:'+pct+'%;border-radius:2px"></div></div></div>';
+  if(carry.length){html+='<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:8px">🚨 CARRY ('+carry.length+')</div>';carry.forEach(t=>{html+='<div style="background:rgba(226,75,74,0.07);border-left:2px solid var(--red);border-radius:6px;padding:10px 12px;margin-bottom:6px"><div style="font-size:13px;font-weight:500">'+t.titulo+'</div><div style="font-size:11px;color:var(--text3)">'+t.data+'</div></div>';});html+='</div>';}
+  if(done.length){html+='<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:8px">✅ CONCLUÍDAS ('+done.length+')</div>';done.forEach(t=>{html+='<div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:6px;opacity:.65"><div style="font-size:13px;font-weight:500;text-decoration:line-through">'+t.titulo+'</div><div style="display:flex;gap:5px;margin-top:4px"><span class="badge badge-client">'+t.cliente+'</span><span class="badge badge-type">'+t.tipo+'</span><span class="badge badge-time">'+(RESP[t.responsavel]||t.responsavel)+'</span></div></div>';});html+='</div>';}
+  if(pend.length){html+='<div><div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:8px">⏳ PENDENTES → ALTA amanhã ('+pend.length+')</div>';pend.forEach(t=>{html+='<div style="background:rgba(239,159,39,0.07);border-left:2px solid var(--amber);border-radius:6px;padding:10px 12px;margin-bottom:6px"><div style="font-size:13px;font-weight:500">'+t.titulo+'</div><div style="display:flex;gap:5px;margin-top:4px"><span class="badge badge-client">'+t.cliente+'</span><span class="badge badge-type">'+t.tipo+'</span><span class="badge badge-alta">Alta amanhã</span></div></div>';});html+='</div>';}
+  document.getElementById('report-body').innerHTML = html;
+  let rt='📋 RELATÓRIO — '+hoje+'\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  if(carry.length){rt+='🚨 CARRY ('+carry.length+'):\n';carry.forEach(t=>{rt+='• '+t.titulo+' ['+t.cliente+'] — de '+t.data+'\n';});rt+='\n';}
+  if(done.length){rt+='✅ CONCLUÍDAS ('+done.length+'):\n';done.forEach(t=>{rt+='• '+t.titulo+' ['+t.cliente+'·'+t.tipo+'] — '+(RESP[t.responsavel]||t.responsavel)+'\n';});rt+='\n';}
+  if(pend.length){rt+='⏳ PENDENTES ('+pend.length+'):\n';pend.forEach(t=>{rt+='• '+t.titulo+' ['+t.cliente+'·'+t.tipo+']\n';});rt+='\n';}
+  rt+='━━━━━━━━━━━━━━━━━━━━━━━━━\nTotal: '+day.length+' | Concluídas: '+done.length+' | Pendentes: '+pend.length;
+  _reportTxt = rt;
+  let ag='Relatório do dia — '+hoje+':\n\n';
+  if(done.length){ag+='FOI FEITO:\n';done.forEach(t=>{ag+='- '+t.titulo+' ('+t.cliente+' · '+t.tipo+') ✅\n';});ag+='\n';}
+  if(pend.length){ag+='NÃO FOI CONCLUÍDO — incluir como ALTA amanhã:\n';pend.forEach(t=>{ag+='- '+t.titulo+' ('+t.cliente+' · '+t.tipo+' · '+(RESP[t.responsavel]||t.responsavel)+')\n';});ag+='\n';}
+  if(carry.length){ag+='ACUMULADO DE DIAS ANTERIORES — também ALTA:\n';carry.forEach(t=>{ag+='- '+t.titulo+' ('+t.cliente+') — de '+t.data+'\n';});ag+='\n';}
+  ag+='Por favor, organize as tarefas de amanhã priorizando pendentes e acumuladas como ALTA prioridade.';
+  _reportAgente = ag;
+}
+
+function copiar(txt, msg) {
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function(){ alert(msg); }); }
+  else { const el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);alert(msg); }
+}
 </script>
 </body>
 </html>
