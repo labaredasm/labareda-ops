@@ -147,6 +147,36 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 /* EMPTY */
 .empty-state{text-align:center;padding:40px;color:var(--text3)}
 .empty-icon{font-size:36px;margin-bottom:10px}
+
+/* ONLINE POPUP */
+.online-badge{position:relative;cursor:pointer;transition:all .15s}
+.online-badge:hover{border-color:var(--green);background:var(--bg3)}
+.online-badge:active{transform:scale(.97)}
+.online-popup{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;min-width:220px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
+.online-popup.open{display:block}
+.online-popup-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.online-user-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.online-user-item:last-child{border-bottom:none}
+.online-user-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.online-user-name{font-size:13px;font-weight:500}
+.online-user-time{font-size:11px;color:var(--text3);margin-left:auto}
+.online-empty{font-size:13px;color:var(--text3);text-align:center;padding:8px 0}
+
+/* FRASE MOTIVACIONAL */
+.frase-card{background:linear-gradient(135deg,rgba(255,92,0,0.08) 0%,rgba(255,92,0,0.03) 100%);border:1px solid rgba(255,92,0,0.2);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;position:relative;overflow:hidden}
+.frase-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--orange)}
+.frase-icon{font-size:16px;margin-bottom:6px;opacity:.7}
+.frase-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.6;font-style:italic}
+.frase-author{font-size:11px;color:var(--text3);margin-top:6px}
+
+/* CLIENT STATUS — visual por fase */
+.client-fase{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600;margin-top:3px;display:inline-block}
+.fase-f1{background:rgba(55,138,221,0.15);color:#70b3f0}
+.fase-f2{background:rgba(239,159,39,0.15);color:#ffc066}
+.fase-f3{background:rgba(255,92,0,0.15);color:#ff8c44}
+.fase-f4{background:rgba(127,119,221,0.15);color:#a8a3f0}
+.fase-f5{background:rgba(29,158,117,0.15);color:#5dd4a5}
+.fase-enc{background:rgba(255,255,255,0.06);color:var(--text3)}
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 @media(max-width:768px){
@@ -194,9 +224,22 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     <div class="page active" id="page-painel">
       <div class="page-header">
         <div><div class="page-title">Painel Geral</div><div class="page-date" id="painel-date">-</div></div>
-        <div class="online-badge"><div class="online-dot"></div><span id="clock-display">--:--</span></div>
+        <div class="online-badge" id="online-badge-btn" onclick="toggleOnlinePopup(event)" title="Ver quem está online">
+  <div class="online-dot"></div>
+  <span id="clock-display">--:--</span>
+  <span id="online-count" style="font-weight:600;color:var(--green)"></span>
+  <div class="online-popup" id="online-popup">
+    <div class="online-popup-title">🟢 Online agora</div>
+    <div id="online-popup-body"><div class="online-empty">Carregando...</div></div>
+  </div>
+</div>
       </div>
-      <div id="alerts-wrap"></div>
+      <div class="frase-card" id="frase-card">
+  <div class="frase-icon">✦</div>
+  <div class="frase-text" id="frase-text">Carregando...</div>
+  <div class="frase-author" id="frase-author">— Labareda Ops</div>
+</div>
+<div id="alerts-wrap"></div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-n orange" id="st-total">-</div><div class="stat-l">Total hoje</div></div>
         <div class="stat-card"><div class="stat-n green" id="st-done">0</div><div class="stat-l">Concluídas</div></div>
@@ -246,6 +289,17 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   </div>
 </div>
 
+<!-- MODAL ONLINE USERS -->
+<div class="modal-overlay" id="online-modal" style="z-index:400">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <div class="modal-title">🟢 Usuários Online</div>
+      <button class="modal-close" onclick="fecharModal('online-modal')">✕</button>
+    </div>
+    <div id="online-modal-body"></div>
+  </div>
+</div>
+
 <!-- MODAL CALENDÁRIO -->
 <div class="modal-overlay" id="cal-modal">
   <div class="modal">
@@ -283,12 +337,12 @@ let calYear, calMonth;
 
 const RESP_LABELS = {ed:'Edivaldo Ferreira', kt:'Kethly Suely', danilo:'Danilo', micheline:'Micheline'};
 const CLIENTS_CONFIG = [
-  {nome:'Magnólia Sousa', cor:'#E24B4A', status:'Carrosseis aguardando aprovação', etapa:'E9 – Aprovações'},
-  {nome:'Marcos Adriano', cor:'#EF9F27', status:'Material enviado · aguardando resposta', etapa:'E9 – Aprovações'},
-  {nome:'Pluma Baby', cor:'#E24B4A', status:'Pagamento ATRASADO · cobrança urgente', etapa:'E8 – Criação'},
-  {nome:'Ricardinho Lanches', cor:'#EF9F27', status:'Estáticos abril em produção', etapa:'E8 – Criação'},
-  {nome:'Thaís Andrade', cor:'#1D9E75', status:'OK · destaques pendentes', etapa:'E6 – Criação Interna'},
-  {nome:'Clinica Afetiva', cor:'#378ADD', status:'Encerrado · entregando material restante', etapa:'E9 – Aprovações'}
+  {nome:'Magnólia Sousa', cor:'#E24B4A', status:'Conteúdo maio em criação · reunião realizada', fase:'F2', faseLabel:'F2 · Criação'},
+  {nome:'Marcos Adriano', cor:'#EF9F27', status:'Reels simples pendentes · reunião domingo 19/04', fase:'F2', faseLabel:'F2 · Criação'},
+  {nome:'Pluma Baby', cor:'#E24B4A', status:'Conteúdo maio aguardando aprovação do cliente', fase:'F3', faseLabel:'F3 · Aprovação'},
+  {nome:'Ricardinho Lanches', cor:'#1D9E75', status:'Conteúdo maio criado · designs em produção', fase:'F2', faseLabel:'F2 · Criação'},
+  {nome:'Thaís Andrade', cor:'#EF9F27', status:'Conteúdo maio enviado para aprovação', fase:'F3', faseLabel:'F3 · Aprovação'},
+  {nome:'Clinica Afetiva', cor:'#378ADD', status:'Encerrado · 14 designs em produção · entrega 24/04', fase:'enc', faseLabel:'Encerrado'}
 ];
 
 // ── FUSO BRASÍLIA GMT-3 ─────────────────────────────────────
@@ -443,6 +497,8 @@ function entrarNoApp() {
   subscribeRealtime();
   iniciarVerificadorDia();
   renderClients();
+  renderFrase();
+  iniciarPresence();
 }
 
 // ── CARREGAR TAREFAS ───────────────────────────────────────
@@ -629,20 +685,20 @@ function renderAlerts() {
 function renderClients() {
   if (currentUser?.papel!=='admin') return;
   document.getElementById('clients-list').innerHTML = CLIENTS_CONFIG.map((c,i)=>`
-    <div class="client-item" onclick="editarStatusCliente(${i})" style="cursor:pointer">
+    <div class="client-item" onclick="editarStatusCliente(${i})" style="cursor:pointer" title="Clique para editar o status">
       <div class="client-dot" style="background:${c.cor}"></div>
       <div class="client-info">
         <div class="client-name">${c.nome}</div>
         <div class="client-status">${c.status}</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:2px">${c.etapa||''}</div>
+        <span class="client-fase fase-${c.fase}">${c.faseLabel}</span>
       </div>
-      <div style="color:var(--text3);font-size:14px">›</div>
+      <div style="color:var(--text3);font-size:14px;margin-left:6px">✏️</div>
     </div>`).join('');
 }
 
 function editarStatusCliente(idx) {
   const c = CLIENTS_CONFIG[idx];
-  const novoStatus = prompt(`Status de "${c.nome}":`, c.status);
+  const novoStatus = prompt(`✏️ Status de "${c.nome}":`, c.status);
   if (novoStatus !== null && novoStatus.trim()) {
     CLIENTS_CONFIG[idx].status = novoStatus.trim();
     renderClients();
@@ -994,6 +1050,119 @@ function copiarTexto(txt, msg) {
 function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click', e=>{if(e.target===e.currentTarget)m.classList.remove('open');}));
 
+
+// ── FRASES MOTIVACIONAIS ──────────────────────────────────
+const FRASES = [
+  {texto: 'A ação cura o medo.', autor: '— Dale Carnegie'},
+  {texto: 'Faça o difícil enquanto ele ainda é fácil.', autor: '— Dale Carnegie'},
+  {texto: 'Um pequeno passo hoje vale mais do que uma grande intenção amanhã.', autor: '— Labareda'},
+  {texto: 'O sucesso nasce da constância.', autor: '— Labareda'},
+  {texto: 'Produtividade não é fazer tudo. É fazer o que importa.', autor: '— Labareda'},
+  {texto: 'Quem age com clareza avança com mais força.', autor: '— Labareda'},
+  {texto: 'Disciplina constrói resultados que a motivação sozinha não sustenta.', autor: '— Labareda'},
+  {texto: 'No digital, vence quem aparece, melhora e continua.', autor: '— Labareda'},
+  {texto: 'Comece com o que você tem. Mas comece.', autor: '— Dale Carnegie'},
+  {texto: 'O trabalho bem feito de hoje prepara o crescimento de amanhã.', autor: '— Labareda'},
+  {texto: 'Não espere. O momento certo nunca vai chegar.', autor: '— Napoleon Hill'},
+  {texto: 'Vença seus medos e os resultados virão até você.', autor: '— Dale Carnegie'},
+  {texto: 'Execução é o que separa quem sonha de quem conquista.', autor: '— Labareda'},
+  {texto: 'Cada tarefa concluída hoje é um tijolo do seu futuro.', autor: '— Labareda'},
+];
+
+function renderFrase() {
+  const idx = Math.floor(Math.random() * FRASES.length);
+  const f = FRASES[idx];
+  const el = document.getElementById('frase-text');
+  const au = document.getElementById('frase-author');
+  if (el) el.textContent = '"' + f.texto + '"';
+  if (au) au.textContent = f.autor;
+}
+
+// ── USUÁRIOS ONLINE ────────────────────────────────────────
+let onlineChannel = null;
+let onlineUsers = {};
+
+function iniciarPresence() {
+  if (!sb || !currentUser) return;
+  onlineChannel = sb.channel('presence_labareda', {
+    config: { presence: { key: currentUser.login } }
+  });
+
+  onlineChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state = onlineChannel.presenceState();
+      onlineUsers = {};
+      Object.values(state).forEach(presences => {
+        presences.forEach(p => {
+          onlineUsers[p.login] = { nome: p.nome, last: p.last_seen };
+        });
+      });
+      atualizarOnlineUI();
+    })
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await onlineChannel.track({
+          login: currentUser.login,
+          nome: currentUser.nome,
+          last_seen: new Date().toISOString()
+        });
+      }
+    });
+
+  // Atualizar presença a cada 60s
+  setInterval(async () => {
+    if (onlineChannel) {
+      await onlineChannel.track({
+        login: currentUser.login,
+        nome: currentUser.nome,
+        last_seen: new Date().toISOString()
+      });
+    }
+  }, 60000);
+}
+
+function atualizarOnlineUI() {
+  const count = Object.keys(onlineUsers).length;
+  const countEl = document.getElementById('online-count');
+  if (countEl) countEl.textContent = count > 0 ? ' · ' + count : '';
+
+  const body = document.getElementById('online-popup-body');
+  if (!body) return;
+
+  if (count === 0) {
+    body.innerHTML = '<div class="online-empty">Ninguém online no momento.</div>';
+    return;
+  }
+
+  body.innerHTML = Object.values(onlineUsers).map(u => {
+    const br = getBrasiliaDate();
+    const last = new Date(u.last);
+    const diffMin = Math.round((br - last) / 60000);
+    const timeStr = diffMin < 2 ? 'agora mesmo' : diffMin < 60 ? diffMin + 'min atrás' : 'há mais de 1h';
+    return \`<div class="online-user-item">
+      <div class="online-user-dot"></div>
+      <div class="online-user-name">\${u.nome}</div>
+      <div class="online-user-time">\${timeStr}</div>
+    </div>\`;
+  }).join('');
+}
+
+function toggleOnlinePopup(e) {
+  e.stopPropagation();
+  const popup = document.getElementById('online-popup');
+  if (!popup) return;
+  popup.classList.toggle('open');
+  atualizarOnlineUI();
+}
+
+// Fechar popup ao clicar fora
+document.addEventListener('click', (e) => {
+  const popup = document.getElementById('online-popup');
+  const badge = document.getElementById('online-badge-btn');
+  if (popup && badge && !badge.contains(e.target)) {
+    popup.classList.remove('open');
+  }
+});
 // ── ALERTS CONFIG ──────────────────────────────────────────
 // Alertas automáticos por dia da semana (Brasília)
 function getAlertasDoDia() {
@@ -1017,11 +1186,13 @@ function getAlertasDoDia() {
 
   return [...alertas, ...(porDia[dow]||[])];
 }
-window.LABAREDA_ALERTS = getAlertasDoDia();
+// Alerts — só mostrar se realmente urgente (Pluma pagamento, etc)
+window.LABAREDA_ALERTS = getAlertasDoDia().filter(a => a.type === 'red');
 
 // Renderizar alerts após DOM estar pronto
 setTimeout(() => {
-  window.LABAREDA_ALERTS = getAlertasDoDia();
+  // Alerts — só mostrar se realmente urgente (Pluma pagamento, etc)
+window.LABAREDA_ALERTS = getAlertasDoDia().filter(a => a.type === 'red');
   renderAlerts();
 }, 100);
 </script>
