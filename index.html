@@ -1,3 +1,4 @@
+@@ -1,1247 +0,0 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -63,8 +64,6 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .page{display:none}.page.active{display:block}
 
 /* ── HEADER ────────────────────────────────────────────── */
-@keyframes cTyping{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
-@keyframes cFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
 .page-title{font-size:22px;font-weight:700}
 .page-date{font-size:13px;color:var(--text2);margin-top:3px}
@@ -289,7 +288,6 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       <div class="nav-item" id="nav-calendario"><span class="nav-icon">📅</span>Calendário</div>
       <div class="nav-item admin-only" id="nav-equipe"><span class="nav-icon">👥</span>Equipe</div>
       <div class="nav-item admin-only" id="nav-metricas"><span class="nav-icon">📊</span>Métricas</div>
-      <div class="nav-item admin-only" id="nav-conselho"><span class="nav-icon">🤖</span>Conselho IA</div>
     </nav>
     <div class="sidebar-bottom">
       <div class="session-timer"><span>⏱️ Sessão:</span><span class="session-timer-val" id="session-timer">00:00:00</span></div>
@@ -420,30 +418,6 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       <button class="report-action-btn btn-blue" id="copy-report-btn">📋 Copiar relatório</button>
       <button class="report-action-btn btn-orange" id="copy-agent-btn">🤖 Copiar para o Agente</button>
       <button class="report-action-btn btn-green" id="close-report-btn">✅ Fechar</button>
-    </div>
-  </div>
-  <!-- PAGE CONSELHO IA -->
-  <div id="page-conselho" style="display:none">
-    <div class="page-header"><div><div class="page-title">🤖 Conselho IA</div><div class="page-sub">Especialistas da Labareda com inteligência artificial · somente ADM</div></div></div>
-    <div style="display:flex;gap:16px;height:calc(100vh - 120px);overflow:hidden">
-      <div id="c-sidebar" style="width:210px;flex-shrink:0;display:flex;flex-direction:column;gap:4px;overflow-y:auto;padding-right:4px">
-        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">Especialistas</div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden">
-        <div id="c-header" style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;min-height:58px">
-          <div style="font-size:13px;color:var(--text3)">← Selecione um especialista para começar</div>
-        </div>
-        <div id="c-msgs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent"></div>
-        <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end">
-          <textarea id="c-input" placeholder="Selecione um especialista..." disabled rows="1"
-            style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 13px;color:var(--text);font-family:inherit;font-size:13px;resize:none;outline:none;min-height:40px;max-height:96px;transition:border-color .2s;line-height:1.5"
-            onkeydown="cKey(event)" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,96)+'px'"></textarea>
-          <button id="c-send" onclick="cSend()" disabled
-            style="width:38px;height:38px;border-radius:var(--radius-sm);background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;flex-shrink:0;opacity:.4">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2"/></svg>
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -969,88 +943,6 @@ document.getElementById('nav-painel').addEventListener('click',function(){showPa
 document.getElementById('nav-calendario').addEventListener('click',function(){showPage('calendario',this);});
 document.getElementById('nav-equipe').addEventListener('click',function(){showPage('equipe',this);});
 document.getElementById('nav-metricas').addEventListener('click',function(){showPage('metricas',this);});
-// ══ CONSELHO IA ══════════════════════════════════════════════════
-document.getElementById('nav-conselho').addEventListener('click',function(){showPage('conselho',this);setTimeout(cInit,50);});
-const C_EXPERTS=[
-  {id:'onboarding',e:'🤝',n:'Onboarding',r:'Captação e boas-vindas',sys:'Você é o Especialista em Onboarding da Labareda, agência de marketing digital brasileira (Instagram, Facebook, TikTok, YouTube, Pinterest, LinkedIn).\n\nFLUXO: 1) Briefing — negócio, público, tom de voz, concorrentes 2) Análise do perfil existente 3) Alinhamento de identidade visual (BLOQUEADOR: não avançar sem isso) 4) Contrato e acesso às páginas 5) Kick-off com linha editorial do 1º mês.\n\nEQUIPE: Edivaldo (estratégia, criação, design, vídeo, métricas) · Kethly (atendimento, follow-up). Seja direto e prático. Dê checklists e modelos de mensagem. Máximo 300 palavras. Responda em português do Brasil.'},
-  {id:'atendimento',e:'💬',n:'Atendimento',r:'Relacionamento e aprovações',sys:'Você é a Especialista em Atendimento da Labareda.\n\nPROTOCOLO: Responder em até 24h. Follow-up: ciclo de 3 dias, fechar no 5º sem resposta. Envio para aprovação: dias 11–15. Relatório diário no grupo.\n\nCLIENTES: Magnolia (bloqueio visual), Marcos (barter), Thaís, Pluma (viral), Ricardinho (trocar logo urgente).\n\nSempre conduza o cliente. Dê modelos de mensagem quando pedido. Máximo 300 palavras. Responda em português do Brasil.'},
-  {id:'estrategia',e:'🎯',n:'Estratégia',r:'Editorial e planejamento',sys:'Você é o Estrategista de Conteúdo da Labareda.\n\nFLUXO MENSAL: Dias 1–5 métricas+planejamento · Dias 6–10 produção · Dias 11–15 aprovação. SEMANAL: Seg desbloquear · Ter briefing · Qua criação · Qui gravação · Sex aprovação+agendamento.\n\nPILARES: Educação, Entretenimento, Autoridade, Conversão. Seja estratégico e concreto. Sugira temas e formatos reais. Máximo 350 palavras. Responda em português do Brasil.'},
-  {id:'criacao',e:'✏️',n:'Criação',r:'Copy, design e identidade',sys:'Você é o Especialista em Criação da Labareda.\n\nFORMATOS: posts, carrosséis, stories, destaques, post fixo, capa de reels. COPY: gancho forte nos primeiros 3s/2 linhas, CTA claro, tom de voz alinhado. DESIGN: respeitar paleta e fontes, não avançar sem identidade aprovada.\n\nEscreva copies reais. Dê ganchos e estruturas de carrossel. Máximo 350 palavras. Responda em português do Brasil.'},
-  {id:'video',e:'🎬',n:'Vídeo',r:'Roteiro, gravação e edição',sys:'Você é o Especialista em Vídeo da Labareda.\n\nROTEAMENTO: Simples→Edivaldo · Complexo Marcos→Danilo (R\$35/vídeo) · Complexo Magnolia/Thaís→Micheline (R\$45/vídeo).\n\nROTEIRO: gancho 3s, problema, desenvolvimento, CTA. GRAVAÇÃO: 9:16, iluminação frontal, fundo limpo, áudio sem eco, arquivo original.\n\nEscreva roteiros reais. Dê orientações claras. Máximo 350 palavras. Responda em português do Brasil.'},
-  {id:'metricas',e:'📊',n:'Métricas',r:'Relatórios e análise',sys:'Você é o Analista de Métricas da Labareda.\n\nMÉTRICAS: alcance, impressões, engajamento, crescimento, alcance por formato, cliques, views de vídeo, stories. FLUXO: coleta fim do mês → análise comparativa → top/piores → relatório → reunião dias 1–5 → ajuste de estratégia.\n\nSeja analítico. Explique como interpretar e o que fazer quando métricas caem. Máximo 350 palavras. Responda em português do Brasil.'},
-  {id:'publicacao',e:'📅',n:'Publicação',r:'Agendamento e gestão',sys:'Você é o Gestor de Publicação da Labareda. Ferramenta: Reportei/Fluxo. Plataformas: Instagram, Facebook, TikTok, YouTube, Pinterest, LinkedIn.\n\nHORÁRIOS: Instagram ter–sex 18–21h · TikTok 19–22h · LinkedIn ter–qui 8–10h ou 12h · YouTube qui–sex 16–18h.\n\nCHECKLIST: legenda+CTA, hashtags (15–20 no IG), alt text, link na bio, formato correto. Dê checklists práticos. Máximo 300 palavras. Responda em português do Brasil.'},
-  {id:'suporte',e:'🛠️',n:'Suporte',r:'Stories, destaques e orientação',sys:'Você é o Especialista em Suporte da Labareda.\n\nITENS: stories (templates na identidade visual), orientação de gravação ao cliente, destaques (capas+categorias: Sobre/Serviços/Depoimentos/Promoções/FAQ/Bastidores), post fixo (âncora do perfil), FAQ interno.\n\nSTORIES: 9:16, 1080x1920px, máx 15/dia. Seja prático e criativo. Máximo 300 palavras. Responda em português do Brasil.'},
-  {id:'financeiro',e:'💰',n:'Financeiro',r:'Cobrança e controle',sys:'Você é o Conselheiro Financeiro da Labareda.\n\nFATURAMENTO dia 10: Ricardinho R\$500 · Pluma R\$500 · Thaís R\$450 · Magnolia R\$900 · Marcos=barter. PIX: sistema ASUS+chave aleatória.\n\nPRESTADORES: Danilo R\$35/vídeo (1 pendente) · Micheline R\$45/vídeo · Jurídico dia 20 (atrasado desde set).\n\nAlerta clientes a partir do dia 8. Dê modelos de cobrança. Máximo 300 palavras. Responda em português do Brasil.'}
-];
-let _cActive=null,_cHist={},_cLoading=false,_cInited=false;
-function cInit(){
-  if(_cInited)return;_cInited=true;
-  const sb=document.getElementById('c-sidebar');
-  C_EXPERTS.forEach(exp=>{
-    _cHist[exp.id]=[];
-    const btn=document.createElement('div');
-    btn.id='cbtn-'+exp.id;
-    btn.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid transparent;cursor:pointer;transition:all .15s;user-select:none';
-    btn.innerHTML='<span style="font-size:17px;width:26px;text-align:center;flex-shrink:0">'+exp.e+'</span><div style="min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+exp.n+'</div><div style="font-size:10px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+exp.r+'</div></div>';
-    btn.onmouseenter=()=>{if(_cActive!==exp.id){btn.style.background='var(--bg3)';btn.style.borderColor='var(--border)';}};
-    btn.onmouseleave=()=>{if(_cActive!==exp.id){btn.style.background='';btn.style.borderColor='transparent';}};
-    btn.onclick=()=>cSelect(exp.id);
-    sb.appendChild(btn);
-  });
-}
-function cSelect(id){
-  const exp=C_EXPERTS.find(e=>e.id===id);if(!exp)return;
-  C_EXPERTS.forEach(e=>{const b=document.getElementById('cbtn-'+e.id);if(!b)return;if(e.id===id){b.style.background='rgba(255,92,0,.1)';b.style.borderColor='rgba(255,92,0,.3)';}else{b.style.background='';b.style.borderColor='transparent';}});
-  _cActive=id;
-  document.getElementById('c-header').innerHTML='<span style="font-size:20px">'+exp.e+'</span><div><div style="font-size:14px;font-weight:700;color:var(--text)">'+exp.n+'</div><div style="font-size:11px;color:var(--text3)">'+exp.r+'</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;display:inline-block"></span>online</div>';
-  const inp=document.getElementById('c-input'),btn=document.getElementById('c-send');
-  inp.disabled=false;inp.placeholder='Pergunte ao especialista em '+exp.n+'...';btn.disabled=false;btn.style.opacity='1';
-  cRender();inp.focus();
-}
-function cRender(){
-  if(!_cActive)return;
-  const msgs=document.getElementById('c-msgs');
-  const hist=_cHist[_cActive]||[];
-  const exp=C_EXPERTS.find(e=>e.id===_cActive);
-  if(hist.length===0){msgs.innerHTML='<div style="flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 20px;color:var(--text3)"><div><div style="font-size:32px;margin-bottom:10px">'+exp.e+'</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px">'+exp.n+'</div><div style="font-size:12px">'+exp.r+'</div></div></div>';return;}
-  msgs.innerHTML=hist.map(m=>{
-    const t=new Date(m.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    if(m.role==='user')return '<div style="display:flex;flex-direction:row-reverse;gap:8px;animation:cFade .25s"><div style="width:26px;height:26px;border-radius:6px;background:var(--bg4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text3);flex-shrink:0;margin-top:2px">ED</div><div style="max-width:72%"><div style="background:rgba(255,92,0,.12);border:1px solid rgba(255,92,0,.2);border-radius:12px;border-top-right-radius:3px;padding:9px 13px;font-size:13px;line-height:1.6;color:var(--text);white-space:pre-wrap">'+m.content.replace(/</g,'&lt;')+'</div><div style="font-size:10px;color:var(--text3);margin-top:3px;text-align:right">'+t+'</div></div></div>';
-    const fmt=m.content.replace(/</g,'&lt;').replace(/**(.+?)**/g,'<strong>$1</strong>').replace(/
-/g,'<br>');
-    return '<div style="display:flex;gap:8px;animation:cFade .25s"><div style="width:26px;height:26px;border-radius:6px;background:rgba(255,92,0,.1);border:1px solid rgba(255,92,0,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px">'+exp.e+'</div><div style="max-width:72%"><div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;border-top-left-radius:3px;padding:9px 13px;font-size:13px;line-height:1.6;color:var(--text)">'+fmt+'</div><div style="font-size:10px;color:var(--text3);margin-top:3px">'+exp.n+' · '+t+'</div></div></div>';
-  }).join('');
-  setTimeout(()=>{msgs.scrollTop=msgs.scrollHeight;},50);
-}
-function cKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();cSend();}}
-async function cSend(){
-  if(_cLoading||!_cActive)return;
-  const inp=document.getElementById('c-input');
-  const txt=inp.value.trim();if(!txt)return;
-  inp.value='';inp.style.height='auto';
-  const exp=C_EXPERTS.find(e=>e.id===_cActive);
-  _cHist[_cActive].push({role:'user',content:txt,ts:Date.now()});
-  cRender();_cLoading=true;
-  document.getElementById('c-send').disabled=true;document.getElementById('c-send').style.opacity='.4';
-  const msgs=document.getElementById('c-msgs');
-  const typing=document.createElement('div');typing.id='c-typing';typing.style.cssText='display:flex;gap:8px';
-  typing.innerHTML='<div style="width:26px;height:26px;border-radius:6px;background:rgba(255,92,0,.1);border:1px solid rgba(255,92,0,.2);display:flex;align-items:center;justify-content:center;font-size:13px">'+exp.e+'</div><div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;border-top-left-radius:3px;padding:11px 15px;display:flex;gap:4px;align-items:center"><span style="width:5px;height:5px;border-radius:50%;background:var(--text3);display:inline-block;animation:cTyping 1.2s infinite"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--text3);display:inline-block;animation:cTyping 1.2s .2s infinite"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--text3);display:inline-block;animation:cTyping 1.2s .4s infinite"></span></div>';
-  msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
-  try{
-    const hist=_cHist[_cActive];
-    const apiMsgs=hist.slice(0,-1).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}));
-    apiMsgs.push({role:'user',content:txt});
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:exp.sys,messages:apiMsgs})});
-    const data=await res.json();
-    const reply=data.content&&data.content[0]?data.content[0].text:'Erro ao obter resposta.';
-    _cHist[_cActive].push({role:'ai',content:reply,ts:Date.now()});
-  }catch(err){_cHist[_cActive].push({role:'ai',content:'Não foi possível conectar. Verifique sua conexão.',ts:Date.now()});}
-  const ty=document.getElementById('c-typing');if(ty)ty.remove();
-  _cLoading=false;document.getElementById('c-send').disabled=false;document.getElementById('c-send').style.opacity='1';
-  cRender();document.getElementById('c-input').focus();
-}
-// ══ FIM CONSELHO IA ══════════════════════════════════════════════
-
 function showPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
